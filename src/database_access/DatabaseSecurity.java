@@ -173,4 +173,44 @@ public class DatabaseSecurity {
 
         return new_s;
     }
+
+
+    static public String byte_array_to_hex_string(byte[] s) {
+        int temp_int;
+        String temp_str;
+        String new_s;
+
+        temp_int = (int) s[0];
+        new_s = Integer.toHexString(temp_int);
+
+        if (s.length > 1) {
+            for (int i = 1; i < s.length; i++) {
+                temp_int = (int) s[i];
+                temp_str = Integer.toHexString(temp_int);
+                if (temp_str.length() == 1)
+                    temp_str = "0" + temp_str;
+                if (temp_str.length() == 8)
+                    temp_str = temp_str.substring(6);
+                new_s = new_s + temp_str;
+            }
+        }
+
+        return new_s;
+    }
+
+
+    static public byte[] hex_string_to_byte_array(String s) {
+        byte[] new_s = new byte[s.length() / 2];
+        int index;
+        int temp_int;
+
+        //This loop based on code from geeksforgeeks.org
+        for (int i = 0; i < new_s.length; i++) {
+            index = i * 2;
+            temp_int = Integer.parseInt(s.substring(index, index + 2), 16);
+            new_s[i] = (byte) temp_int;
+        }
+
+        return new_s;
+    }
 }

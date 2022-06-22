@@ -36,9 +36,9 @@ public class PopulateDatabase {
             stmt.executeQuery("CREATE TABLE user_info(" +
                         "id_num NUMBER, " +
                         "username VARCHAR2(100 CHAR), " +
-                        "first_name CHAR(64), " +
+                        "first_name CHAR(128), " +
                         "first_name_illegal_index NUMBER, " +
-                        "last_name CHAR(64), " +
+                        "last_name CHAR(128), " +
                         "last_name_illegal_index NUMBER, " +
                         "authorization_level NUMBER, " +
                             "CONSTRAINT user_info_pk PRIMARY KEY(id_num) ENABLE, " +
@@ -79,7 +79,9 @@ public class PopulateDatabase {
 
             //This code is for populating the table user_info.
             byte[] enc_f_name = new byte[64];
+            String efn;
             byte[] enc_l_name = new byte[64];
+            String eln;
             long illegal_f_name = 0;
             long illegal_l_name = 0;
             int illegal_flag = 0;
@@ -146,26 +148,11 @@ public class PopulateDatabase {
                 stmt.executeQuery("INSERT INTO user_info VALUES (1749, 'nurse_yamamoto', '" + enc_f_name + "', " + illegal_f_name + ", '" + enc_l_name + "', " + illegal_l_name + ", 1)");
             }
 
-            illegal_flag = 0;
             enc_f_name = DatabaseSecurity.encrypt("Sara", 64);
-            if (DatabaseSecurity.check_for_illegal_SQL(enc_f_name) == 1) {
-                illegal_flag = 1;
-                int[] illegal_index6 = DatabaseSecurity.indicate_illegal_SQL(enc_f_name);
-                illegal_f_name = DatabaseSecurity.SQLarray_to_int(illegal_index6);
-                enc_f_name = DatabaseSecurity.replace_illegal_SQL2(enc_f_name);
-            }
             enc_l_name = DatabaseSecurity.encrypt("Martinez", 64);
-            if (DatabaseSecurity.check_for_illegal_SQL(enc_l_name) == 1) {
-                illegal_flag = 1;
-                int[] illegal_index7 = DatabaseSecurity.indicate_illegal_SQL(enc_l_name);
-                illegal_l_name = DatabaseSecurity.SQLarray_to_int(illegal_index7);
-                enc_l_name = DatabaseSecurity.replace_illegal_SQL2(enc_l_name);
-            }
-            if (illegal_flag == 0) {
-                stmt.executeQuery("INSERT INTO user_info VALUES (2870, 'nurse_martinez', '" + enc_f_name + "', 0, '" + enc_l_name + "', 0, 1)");
-            } else {
-                stmt.executeQuery("INSERT INTO user_info VALUES (2870, 'nurse_martinez', '" + enc_f_name + "', " + illegal_f_name + ", '" + enc_l_name + "', " + illegal_l_name + ", 1)");
-            }
+            efn = DatabaseSecurity.byte_array_to_hex_string(enc_f_name);
+            eln = DatabaseSecurity.byte_array_to_hex_string(enc_l_name);
+            stmt.executeQuery("INSERT INTO user_info VALUES (2870, 'nurse_martinez', '" + efn + "', 0, '" + eln + "', 0, 1)");
 
             illegal_flag = 0;
             enc_f_name = DatabaseSecurity.encrypt("James", 64);

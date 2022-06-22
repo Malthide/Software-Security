@@ -67,17 +67,17 @@ public class DatabaseAccess {
 
             rs.next();
             int id_num = rs.getInt("id_num");
-            byte[] enc_first_name = rs.getBytes("first_name");
-            System.out.println(enc_first_name.length);
+            String efn = rs.getString("first_name");
+            byte[] enc_first_name = DatabaseSecurity.hex_string_to_byte_array(efn);
             int first_name_illegal_index = rs.getInt("first_name_illegal_index");
-            byte[] enc_last_name = rs.getBytes("last_name");
-            System.out.println(enc_last_name.length);
+            String eln = rs.getString("last_name");
+            byte[] enc_last_name = DatabaseSecurity.hex_string_to_byte_array(eln);
             int last_name_illegal_index = rs.getInt("last_name_illegal_index");
             int authorization_level = rs.getInt("authorization_level");
 
-            enc_first_name = DatabaseSecurity.put_apostrophes_back_in(enc_first_name, first_name_illegal_index);
+            //enc_first_name = DatabaseSecurity.put_apostrophes_back_in(enc_first_name, first_name_illegal_index);
             String first_name = DatabaseSecurity.decrypt(enc_first_name);
-            enc_last_name = DatabaseSecurity.put_apostrophes_back_in(enc_last_name, last_name_illegal_index);
+            //enc_last_name = DatabaseSecurity.put_apostrophes_back_in(enc_last_name, last_name_illegal_index);
             String last_name = DatabaseSecurity.decrypt(enc_last_name);
 
             UserInfo u_info = new UserInfo(id_num, username, first_name, last_name, authorization_level);
