@@ -17,18 +17,19 @@ import java.io.FileNotFoundException;
 
 public class Main extends Application {
 
-    public void run(){
+    public void run() {
         launch();
     }
 
     Stage primaryStage;
+
     public void start(Stage stage) throws FileNotFoundException {
         primaryStage = stage;
         changeStage(stage, 0);
     }
 
-    public void changeStage(Stage stage, int newStage) throws FileNotFoundException{
-        if(newStage == 0){
+    public void changeStage(Stage stage, int newStage) throws FileNotFoundException {
+        if (newStage == 0) {
             stage.setTitle("Health-Care System");
             GridPane grid = new GridPane();
             grid.setPadding(new Insets(25, 25, 25, 25));
@@ -40,15 +41,15 @@ public class Main extends Application {
             Label nameLabel = new Label("Name:");
             GridPane.setConstraints(nameLabel, 14, 4);
             TextField nameText = new TextField();
-            nameText.setMinSize(100,45);
-            GridPane.setConstraints(nameText,15,4);
+            nameText.setMinSize(100, 45);
+            GridPane.setConstraints(nameText, 15, 4);
 
 ////////////////////////////////////////////////////////////////////////CREATE TEXTFIELD FOR ID
             Label IDLabel = new Label("ID:");
             GridPane.setConstraints(IDLabel, 14, 6);
             TextField IDText = new TextField();
-            IDText.setMinSize(100,45);
-            GridPane.setConstraints(IDText,15,6);
+            IDText.setMinSize(100, 45);
+            GridPane.setConstraints(IDText, 15, 6);
 
 /////////////////////////////////////////////////////////////////////////LOG IN BUTTON
             Button logInButton = new Button("LOG IN");
@@ -69,7 +70,7 @@ public class Main extends Application {
             Label logIn = new Label("Enter Log-In");
             GridPane.setConstraints(logIn, 15, 2);
 
-            grid.getChildren().addAll(logInButton,logIn, nameText, IDText,nameLabel,IDLabel);
+            grid.getChildren().addAll(logInButton, logIn, nameText, IDText, nameLabel, IDLabel);
             Scene scene = new Scene(grid, 500, 500);
             stage.setScene(scene);
             stage.show();
@@ -79,8 +80,8 @@ public class Main extends Application {
     }//END OF CHANGE STAGE FUNCTION
 
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
-    public void logInButton(String nameTemp, String IDTemp){
-        System.out.println(nameTemp+ " "+IDTemp);
+    public void logInButton(String nameTemp, String IDTemp) {
+        System.out.println(nameTemp + " " + IDTemp);
 
     }
 
