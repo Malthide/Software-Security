@@ -17,9 +17,11 @@
 
 import database_access.DatabaseAccess;
 import database_access.UserInfo;
+import database_access.PatientInfo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Calendar;
 
 
 public class TestMainForDatabase {
@@ -31,15 +33,26 @@ public class TestMainForDatabase {
             String database_password = "YellowGreen27";
             Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
+            //Test DatabaseAccess.verify_user_pass()
             int num = DatabaseAccess.verify_user_pass(conn, "nurse_martinez", "password3");
             System.out.println("Verify password result: " + num);
+            System.out.println();
 
+            //Test DatabaseAccess.pull_user_info()
             UserInfo u_info = DatabaseAccess.pull_user_info(conn, "nurse_martinez");
 
             System.out.println("System ID number: " + u_info.id_num);
             System.out.println("First name: " + u_info.first_name);
             System.out.println("Last name: " + u_info.last_name);
             System.out.println("Authorization level: " + u_info.authorization_level);
+            System.out.println();
+
+            //Test DatabaseAccess.pull_patient_info()
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(1982, 7, 16);
+
+            PatientInfo p_info = DatabaseAccess.pull_patient_info(conn, "Jia", "Chen", calendar);
+            System.out.println("Patient ID number: " + p_info.id_num);
 
             conn.close();
         } catch (Exception SQLException) {

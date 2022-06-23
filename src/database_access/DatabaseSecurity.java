@@ -24,9 +24,10 @@ public class DatabaseSecurity {
     static private final byte[] key = {68, 56, 30, 85, 92, -72, 61, 58, 60, 114, 122, -30, -23, -113, 79, 92};
 
 
-    /* encrypt: Takes a plaintext string and passes it through the AES encryption algorithm defined in
-            javax.crypto using the 128-bit secret key "key" defined above. Returns the encrypted string as
-            a byte array. Based on a program provided by Michael Shin, Ph.D.
+    /* encrypt: Takes a plaintext string and its destination block_size (which must be a multiple of 16).
+            Passes the string through the AES encryption algorithm defined in javax.crypto using the 128-bit
+            secret key "key" defined above. Returns the encrypted string as a byte array of size block_size.
+            Based on a program provided by Michael Shin, Ph.D.
      */
     static public byte[] encrypt(String in_str, int block_size) {
         try {
@@ -48,7 +49,7 @@ public class DatabaseSecurity {
     }
 
 
-    /* decrypt: Takes an encrypted byte array and passes it through the AES encryption algorithm defined in
+    /* decrypt: Takes an encrypted byte array and passes it through the AES decryption algorithm defined in
             javax.crypto using the 128-bit secret key "key" defined above. Returns the decrypted array as a
             plaintext string. Based on a program provided by Michael Shin, Ph.D.
      */
@@ -84,6 +85,7 @@ public class DatabaseSecurity {
     /* check_for_illegal_SQL: Takes a string and determines if it contains any illegal SQL characters. Returns
             0 if the string is safe or returns 1 if it is not safe.
      */
+    /*
     static public int check_for_illegal_SQL(byte[] s) {
         for (int i = 0; i < s.length; i++) {
             if (s[i] == '\'') {
@@ -91,11 +93,12 @@ public class DatabaseSecurity {
             }
         }
         return 0;
-    }
+    }*/
 
     /* indicate_illegal_SQL: Takes a string and finds every instance of illegal SQL characters. Returns an
             integer array containing the indexes of those illegal characters in the string.
      */
+    /*
     static public int[] indicate_illegal_SQL(byte[] s) {
         ArrayList<Integer> illegal_positions = new ArrayList<Integer>();
 
@@ -109,7 +112,7 @@ public class DatabaseSecurity {
         //This line of code comes from geeksforgeeks.org
         int[] ret_array = illegal_positions.stream().mapToInt(i -> i).toArray();
         return ret_array;
-    }
+    }*/
 
 
     /* replace_illegal_SQL: Replaces suspicious characters with underscores to help prevent SQL injections.
@@ -131,6 +134,7 @@ public class DatabaseSecurity {
     /* replace_illegal_SQL2: Replaces suspicious characters with underscores to help prevent SQL injections.
             Takes a string and returns a new safe string.
      */
+    /*
     static public byte[] replace_illegal_SQL2(byte[] s) {
         byte[] new_s = s;
 
@@ -141,13 +145,14 @@ public class DatabaseSecurity {
         }
 
         return new_s;
-    }
+    }*/
 
 
     /* SQLarray_to_int: Takes an integer array transforms it into a long integer in which each bit equals 1 if
             its index is found in the array. For example, and array containing {0, 1, 7, 10} would be transformed
             into the integer 2^10+2^7+2^1+2^0. In base 10 this is 1155, or in binary, 0000 0100 1000 0011.
      */
+    /*
     static public long SQLarray_to_int(int[] i_array) {
         long ret_int = 0;
 
@@ -156,9 +161,9 @@ public class DatabaseSecurity {
         }
 
         return ret_int;
-    }
+    }*/
 
-
+/*
     static public byte[] put_apostrophes_back_in(byte[] s, long illegal_index) {
         int counter = 0;
         byte[] new_s = s;
@@ -172,9 +177,13 @@ public class DatabaseSecurity {
         }
 
         return new_s;
-    }
+    }*/
 
 
+    /* byte_array_to_hex_string: Takes a byte array and turns each character into a two-character hexadecimal
+            representation. Returns a string containing the hexadecimal values. The new string's length is
+            twice as long as the original byte array's length.
+     */
     static public String byte_array_to_hex_string(byte[] s) {
         int temp_int;
         String temp_str;
@@ -182,6 +191,10 @@ public class DatabaseSecurity {
 
         temp_int = (int) s[0];
         new_s = Integer.toHexString(temp_int);
+        if (new_s.length() == 1)
+            new_s = "0" + new_s;
+        if (new_s.length() == 8)
+            new_s = new_s.substring(6);
 
         if (s.length > 1) {
             for (int i = 1; i < s.length; i++) {
@@ -199,6 +212,11 @@ public class DatabaseSecurity {
     }
 
 
+    /* hex_string_to_byte_array: Takes a string containing two-digit hexadecimal numbers. Converts each pair
+            of hexadecimal digits into a byte. Returns an array of those bytes. The new byte array is half
+            as long as the original string. This is an inverse function to the above method
+            byte_array_to_hex_string.
+     */
     static public byte[] hex_string_to_byte_array(String s) {
         byte[] new_s = new byte[s.length() / 2];
         int index;
