@@ -1,16 +1,16 @@
 /* DatabaseAccess.java
    Created by Christopher Walker.
    Created 14 June 2022.
-   Last modified 22 June 2022.
+   Last modified 23 June 2022.
    This package provides access functions to a specified SQL database connection. The methods provided here
    are designed for ease of database access and according to the design specifications given in the project
    description.
    Development Update: At this time, the only methods completed are the verify_user_pass() function, the
-   pull_user_info function, the pull_doctor_schedule function, and the pull_patient_info function.
-   Verify_user_pass should be used in the "Login" use case found in the project description. Pull_user_info
+   pull_user_info function(), the pull_doctor_schedule() function, and the pull_patient_info() function.
+   Verify_user_pass() should be used in the "Login" use case found in the project description. Pull_user_info()
    should be used to find the user's ID number and authorization level (to determine access permissions).
-   Pull_doctor_schedule and pull_patient_info should be used in the "Make Appointment" use case found in the
-   project description.
+   Pull_doctor_schedule() and pull_patient_info() should be used in the "Make Appointment" use case found in
+   the project description.
  */
 
 
@@ -109,7 +109,7 @@ public class DatabaseAccess {
         int end_minute;
 
         try {
-            Statement stmt = conn.createStatement();
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             String query = "SELECT * FROM doctor_schedule WHERE doctor_id = " + doctor_id;
             ResultSet rs = stmt.executeQuery(query); //rs now contains all rows that correspond to the given doctor_id
 
@@ -148,7 +148,10 @@ public class DatabaseAccess {
             and a birth_date as a Calendar object. Returns data from the patients table of the database as a
             PatientInfo object (which is defined in the file PatientInfo.java found within the database_access
             package). If no patient is found with matching name and birth_date, returns a PatientInfo object
-            with id_num -3. If an SQL exception occurs, returns a PatientInfo object with id_num -1.
+            with id_num -3. If more than one patient is found with the given name and birth_date, returns a
+            PatientInfo object with id_num -2 (at this time, this implementation does not have a way to deal
+            with more than one patient having the same name and birthdate). If an SQL exception occurs,
+            returns a PatientInfo object with id_num -1.
      */
     static public PatientInfo pull_patient_info(Connection conn, String first_name, String last_name, Calendar birth_date) {
         try {
@@ -179,7 +182,7 @@ public class DatabaseAccess {
             enc_b_date = DatabaseSecurity.encrypt(b_date_str, 16);
             String ebd = DatabaseSecurity.byte_array_to_hex_string(enc_b_date);
 
-            Statement stmt = conn.createStatement();
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             String query = "SELECT * FROM patients WHERE first_name = '" + efn + "' AND last_name = '" + eln + "' AND birthdate = '" + ebd + "'";
             ResultSet rs = stmt.executeQuery(query);
 
@@ -187,6 +190,16 @@ public class DatabaseAccess {
                 Calendar e3 = Calendar.getInstance();
                 PatientInfo e3_info = new PatientInfo(-3, "00", "00", e3, "00", "00", "00", "00", "00", -3, "00");
                 return e3_info;  //returns the object e3_info if no patient info found matching the given name and birthdate
+            }
+
+            rs.last();
+            int num_results = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            if (num_results > 1) {
+                Calendar e2 = Calendar.getInstance();
+                PatientInfo e2_info = new PatientInfo(-2, "00", "00", e2, "00", "00", "00", "00", "00", -2, "00");
+                return e2_info;  //returns the object e2_info if more than one patient is found matching the given name and birthdate
             }
 
             int id_num = rs.getInt("id_num");
@@ -231,5 +244,71 @@ public class DatabaseAccess {
             PatientInfo e1_info = new PatientInfo(-1, "00", "00", e1, "00", "00", "00", "00", "00", -1, "00");
             return e1_info;
         }
+    }
+
+
+    public static void update_patient_info(PatientInfo p_info) {
+        //Changes the info for the given patient in the database
+    }
+
+
+    public static void pull_patient_ssn(int patient_id) {
+        //Returns the ssn corresponding to patient_id
+    }
+
+
+    public static void update_patient_ssn(int patient_id, String new_ssn) {
+        //Changes the ssn in the database for the given patient_id to the new ssn
+    }
+
+
+    static public void pull_appt_schedule() {
+
+    }
+
+
+    static public void add_appt_to_schedule() {
+        //Takes an appointment object or appointment information and saves its info in the database.
+    }
+
+
+    static public void pull_chart_records(int patient_id) {
+        //Returns a list of all chart record objects corresponding to patient_id
+    }
+
+
+    static public void add_new_chart_record() {
+        //Takes a chart record and saves it to the database
+    }
+
+
+    static public void update_chart_record() {
+        //Takes a chart record object and replaces its old info in the database
+    }
+
+
+    static public void pull_payment_records(int patient_id) {
+        //returns a list of payment record objects corresponding to the patient_id
+    }
+
+
+    static public void add_new_payment_record() {
+        //Takes a payment record object and stores its data in the database
+    }
+
+
+    static public void update_payment_record() {
+        //Takes a payment record object and replaces its old data in the database
+    }
+
+
+    static public int pull_drug_id(String drug_name) {
+        //Returns the id_num of the given drug in the database or an error flag (-1?) if not found
+        return -1;
+    }
+
+
+    static public void add_new_prescription(int patient_id, int drug_id, String dose, int amount, String instructions) {
+        //Saves the given information to the database.
     }
 }

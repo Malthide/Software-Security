@@ -16,7 +16,7 @@ import java.sql.Statement;
 
 
 public class PopulateDatabase {
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         try {
             String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
             String database_username = "system";
@@ -312,5 +312,5 @@ public class PopulateDatabase {
         } catch (Exception SQLException) {
             System.out.println(SQLException);
         }
-    }
+    }*/
 }

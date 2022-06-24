@@ -1,7 +1,7 @@
 /* DatabaseSecurity.java
    Created by Christopher Walker.
    Created 16 June 2022.
-   Last modified 22 June 2022.
+   Last modified 23 June 2022.
    This file is an addition to the database_access package, most of which is defined in the file
    DatabaseAccess.java. This class, called DatabaseSecurity, provides methods for use when writing to and
    reading from the database, including encryption and decryption methods and a message digest (hashing)
@@ -14,7 +14,6 @@
 package database_access;
 
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -82,102 +81,20 @@ public class DatabaseSecurity {
     }
 
 
-    /* check_for_illegal_SQL: Takes a string and determines if it contains any illegal SQL characters. Returns
-            0 if the string is safe or returns 1 if it is not safe.
-     */
-    /*
-    static public int check_for_illegal_SQL(byte[] s) {
-        for (int i = 0; i < s.length; i++) {
-            if (s[i] == '\'') {
-                return 1;
-            }
-        }
-        return 0;
-    }*/
-
-    /* indicate_illegal_SQL: Takes a string and finds every instance of illegal SQL characters. Returns an
-            integer array containing the indexes of those illegal characters in the string.
-     */
-    /*
-    static public int[] indicate_illegal_SQL(byte[] s) {
-        ArrayList<Integer> illegal_positions = new ArrayList<Integer>();
-
-        for (int i = 0; i < s.length; i++) {
-            if (s[i] == '\'') {
-                Integer i_ob = Integer.valueOf(i);
-                illegal_positions.add(i_ob);
-            }
-        }
-
-        //This line of code comes from geeksforgeeks.org
-        int[] ret_array = illegal_positions.stream().mapToInt(i -> i).toArray();
-        return ret_array;
-    }*/
-
-
     /* replace_illegal_SQL: Replaces suspicious characters with underscores to help prevent SQL injections.
             Takes a string and returns a new safe string.
      */
     static public String replace_illegal_SQL(String s) {
         String new_s = s;
 
-        //new_s = new_s.replace(';', '_');
-        //new_s = new_s.replace(' ', '_');
+        new_s = new_s.replace(';', '_');
+        new_s = new_s.replace(' ', '_');
         new_s = new_s.replace('\'', '_');
-        // new_s = new_s.replace('*', '_');
-        //new_s = new_s.replace('=', '_');
+        new_s = new_s.replace('*', '_');
+        new_s = new_s.replace('=', '_');
 
         return new_s;
     }
-
-
-    /* replace_illegal_SQL2: Replaces suspicious characters with underscores to help prevent SQL injections.
-            Takes a string and returns a new safe string.
-     */
-    /*
-    static public byte[] replace_illegal_SQL2(byte[] s) {
-        byte[] new_s = s;
-
-        for (int i = 0; i < new_s.length; i++) {
-            if (new_s[i] == '\'') {
-                new_s[i] = '_';
-            }
-        }
-
-        return new_s;
-    }*/
-
-
-    /* SQLarray_to_int: Takes an integer array transforms it into a long integer in which each bit equals 1 if
-            its index is found in the array. For example, and array containing {0, 1, 7, 10} would be transformed
-            into the integer 2^10+2^7+2^1+2^0. In base 10 this is 1155, or in binary, 0000 0100 1000 0011.
-     */
-    /*
-    static public long SQLarray_to_int(int[] i_array) {
-        long ret_int = 0;
-
-        for (int i = 0; i < i_array.length; i++) {
-            ret_int += Math.pow(2, i_array[i]);
-        }
-
-        return ret_int;
-    }*/
-
-/*
-    static public byte[] put_apostrophes_back_in(byte[] s, long illegal_index) {
-        int counter = 0;
-        byte[] new_s = s;
-
-        for (int i = new_s.length - 1; i >= 0; i--) {
-            if (illegal_index / (Math.pow(2, i)) == 1) {
-                new_s[counter] = '\'';
-            }
-            illegal_index -= Math.pow(2, i);
-            counter++;
-        }
-
-        return new_s;
-    }*/
 
 
     /* byte_array_to_hex_string: Takes a byte array and turns each character into a two-character hexadecimal
