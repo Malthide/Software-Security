@@ -1,7 +1,7 @@
 /* PopulateDatabase.java
    Created by Christopher Walker.
    Created 15 June 2022.
-   Last modified 25 June 2022.
+   Last modified 26 June 2022.
    THIS FILE SHOULD ONLY BE INCLUDED AS COMMENTED-OUT CODE IN THE FINAL PROJECT AND SHOULD ONLY BE RUN IF
    NEEDED TO SET UP OR RESET THE DATABASE.
    This file should only be run once. This program creates a table in the SQL database for usernames and
@@ -94,8 +94,10 @@ public class PopulateDatabase {
                     "breathing_rate CHAR(32), " + //record as 3-digit number
                     "blood_pressure_systolic CHAR(32), " + //record as 4-digit number
                     "blood_pressure_diastolic CHAR(32), " + //record as 4-digit number
+                    "doctor_visited NUMBER, " +     //id number of doctor seen at appointment
                         "CONSTRAINT chart_records_pk PRIMARY KEY(id_num) ENABLE, " +
-                        "CONSTRAINT chart_records_fk FOREIGN KEY(patient_id) REFERENCES patients(id_num) ENABLE" +
+                        "CONSTRAINT chart_records_fk1 FOREIGN KEY(patient_id) REFERENCES patients(id_num) ENABLE, " +
+                        "CONSTRAINT chart_records_fk2 FOREIGN KEY(doctor_visited) REFERENCES user_info(id_num) ENABLE" +
                 ")");
             stmt.executeQuery("CREATE TABLE appointments(" +
                     "id_num NUMBER, " +     //These should just be sequential numbers starting at 1
@@ -161,9 +163,11 @@ public class PopulateDatabase {
                     "amount NUMBER, " +
                     "instructions CHAR(512), " +
                     "instructions_length NUMBER, " +
+                    "doctor_id NUMBER, " +
                         "CONSTRAINT prescriptions_pk PRIMARY KEY(id_num) ENABLE, " +
                         "CONSTRAINT prescriptions_fk1 FOREIGN KEY(patient_id) REFERENCES patients(id_num) ENABLE, " +
-                        "CONSTRAINT prescriptions_fk2 FOREIGN KEY(drug_id) REFERENCES drug_types(id_num) ENABLE" +
+                        "CONSTRAINT prescriptions_fk2 FOREIGN KEY(drug_id) REFERENCES drug_types(id_num) ENABLE, " +
+                        "CONSTRAINT prescriptions_fk3 FOREIGN KEY(doctor_id) REFERENCES user_info(id_num) ENABLE" +
                 ")");
 
             //This code is for populating the table user_root.
@@ -297,7 +301,7 @@ public class PopulateDatabase {
             ebps = DatabaseSecurity.byte_array_to_hex_string(enc_bps);
             enc_bpd = DatabaseSecurity.encrypt("0072", 16);
             ebpd = DatabaseSecurity.byte_array_to_hex_string(enc_bpd);
-            stmt.executeQuery("INSERT INTO chart_records VALUES (150006481275, 1094273, 21, 6, 2022, '" + etemp + "', '" + epls + "', '" + ebreath + "', '" + ebps + "', '" + ebpd + "')");
+            stmt.executeQuery("INSERT INTO chart_records VALUES (150006481275, 1094273, 21, 6, 2022, '" + etemp + "', '" + epls + "', '" + ebreath + "', '" + ebps + "', '" + ebpd + "', 9427)");
 
             //This code is for populating the table appointments.
             stmt.executeQuery("INSERT INTO appointments VALUES (1, 1094273, 9427, 21, 6, 2022, 11, 30, 1)");
@@ -358,7 +362,7 @@ public class PopulateDatabase {
             eds = DatabaseSecurity.byte_array_to_hex_string(enc_dose);
             enc_instructions = DatabaseSecurity.encrypt("Take one pill by mouth every 12 hours for 10 days.", 256);
             eins = DatabaseSecurity.byte_array_to_hex_string(enc_instructions);
-            stmt.executeQuery("INSERT INTO prescriptions VALUES (652834, 1094273, 0, 21, 6, 2022, '" + eds + "', 6, 20, '" + eins + "', 50)");
+            stmt.executeQuery("INSERT INTO prescriptions VALUES (652834, 1094273, 0, 21, 6, 2022, '" + eds + "', 6, 20, '" + eins + "', 50, 9427)");
 
             conn.close();
         } catch (Exception SQLException) {

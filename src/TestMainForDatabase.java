@@ -80,7 +80,7 @@ public class TestMainForDatabase {
             while (litr1.hasNext()) {
                 System.out.print("Availability start (DD/MM/YYYY): " + litr1.next().start_time.get(Calendar.DATE));
                 litr1.previous();
-                System.out.print("/" + litr1.next().start_time.get(Calendar.MONTH));
+                System.out.print("/" + ((litr1.next().start_time.get(Calendar.MONTH)) + 1));
                 litr1.previous();
                 System.out.print("/" + litr1.next().start_time.get(Calendar.YEAR));
                 litr1.previous();
@@ -90,7 +90,7 @@ public class TestMainForDatabase {
                 litr1.previous();
                 System.out.print("Availability end (DD/MM/YYYY): " + litr1.next().end_time.get(Calendar.DATE));
                 litr1.previous();
-                System.out.print("/" + litr1.next().end_time.get(Calendar.MONTH));
+                System.out.print("/" + ((litr1.next().end_time.get(Calendar.MONTH)) + 1));
                 litr1.previous();
                 System.out.print("/" + litr1.next().end_time.get(Calendar.YEAR));
                 litr1.previous();
@@ -103,7 +103,7 @@ public class TestMainForDatabase {
             //Test DatabaseAccess.pull_patient_info() for patient Jia Chen
             System.out.println("Test of DatabaseAccess.pull_patient_info()");
             Calendar calendar1 = Calendar.getInstance();
-            calendar1.set(1982, 7, 16);
+            calendar1.set(1982, 6, 16);
             PatientInfo p_info = DatabaseAccess.pull_patient_info(conn, "Jia", "Chen", calendar1);
             System.out.println("Patient ID number: " + p_info.id_num);
             System.out.println("Street address: " + p_info.street_address);
@@ -118,15 +118,35 @@ public class TestMainForDatabase {
             //Test DatabaseAccess.find_patient_id() for same patient Jia Chen
             System.out.println("Test of DatabaseAccess.find_patient_id()");
             Calendar calendar2 = Calendar.getInstance();
-            calendar2.set(1982, 7, 16);
+            calendar2.set(1982, 6, 16);
             int patient_id = DatabaseAccess.find_patient_id(conn, "Jia", "Chen", calendar2);
             System.out.println("Patient ID: " + patient_id);
+            System.out.println();
+
+            //Test DatabaseAccess.update_patient_info() for patient Jia Chen, whose info is saved above in the object p_info
+            System.out.println("Test of DatabaseAccess.update_patient_info()");
+            p_info.phone_number = "5555555551"; //changing the phone number to test database update
+            int success_patient_info = DatabaseAccess.update_patient_info(conn, p_info);
+            if (success_patient_info == 0)
+                System.out.println("Database successfully updated.");
+            else
+                System.out.println("Database update failed.");
             System.out.println();
 
             //Test DatabaseAccess.pull_patient_ssn() for the same patient Jia Chen
             System.out.println("Test of DatabaseAccess.pull_patient_ssn()");
             String ssn = DatabaseAccess.pull_patient_ssn(conn, p_info);
             System.out.println("Patient SSN: " + ssn);
+            System.out.println();
+
+            //Test DatabaseAccess.update_patient_ssn() for the same patient Jia Chen
+            System.out.println("Test of DatabaseAccess.update_patient_ssn()");
+            String new_ssn = "223456789";
+            int success_new_ssn = DatabaseAccess.update_patient_ssn(conn, p_info, new_ssn);
+            if (success_new_ssn == 0)
+                System.out.println("SSN update successful.");
+            else
+                System.out.println("SSN update failed.");
             System.out.println();
 
             //Test DatabaseAccess.pull_appt_schedule()
@@ -142,7 +162,7 @@ public class TestMainForDatabase {
                 litr2.previous();
                 System.out.print("Date (DD/MM/YYYY): " + litr2.next().date_time.get(Calendar.DATE));
                 litr2.previous();
-                System.out.print("/" + litr2.next().date_time.get(Calendar.MONTH));
+                System.out.print("/" + ((litr2.next().date_time.get(Calendar.MONTH)) + 1));
                 litr2.previous();
                 System.out.println("/" + litr2.next().date_time.get(Calendar.YEAR));
                 litr2.previous();
@@ -157,7 +177,7 @@ public class TestMainForDatabase {
             //Test DatabaseAccess.add_appt_to_schedule() using the AppointmentSchedule object appt_s and the PatientInfo object p_info created above.
             System.out.println("Test of DatabaseAccess.add_appt_to_schedule()");
             Calendar calendar3 = Calendar.getInstance();
-            calendar3.set(2022, 7, 8, 16, 0);
+            calendar3.set(2022, 6, 8, 16, 0);
             int success_appt = DatabaseAccess.add_appt_to_schedule(conn, appt_s, p_info.id_num, 3852, calendar3);
             if (success_appt == 0)
                 System.out.println("Appointment scheduled successfully.");
@@ -177,7 +197,7 @@ public class TestMainForDatabase {
                 litr4.previous();
                 System.out.print("Record date (DD/MM/YY): " + litr4.next().record_date.get(Calendar.DATE));
                 litr4.previous();
-                System.out.print("/" + litr4.next().record_date.get(Calendar.MONTH));
+                System.out.print("/" + ((litr4.next().record_date.get(Calendar.MONTH)) + 1));
                 litr4.previous();
                 System.out.println("/" + litr4.next().record_date.get(Calendar.YEAR));
                 litr4.previous();
@@ -190,7 +210,56 @@ public class TestMainForDatabase {
                 System.out.print("Blood pressure: " + litr4.next().blood_pressure_systolic);
                 litr4.previous();
                 System.out.println("/" + litr4.next().blood_pressure_diastolic);
+                litr4.previous();
+                System.out.println("ID of doctor visited: " + litr4.next().doctor_visited);
             }
+            System.out.println();
+
+            //Test pull_payment_records() for patient Jia Chen, whose info is saved above in the object p_info
+            System.out.println("Test of DatabaseAccess.pull_payment_records()");
+            Payments payments = DatabaseAccess.pull_payment_records(conn, p_info.id_num);
+            System.out.println("Patient ID: " + payments.patient_id);
+            ListIterator<PaymentRecord> litr5 = payments.payments_list.listIterator();
+            int paid_check;
+            while (litr5.hasNext()) {
+                System.out.println("Reference number: " + litr5.next().reference_num);
+                litr5.previous();
+                System.out.println("Amount: $" + litr5.next().amount);
+                litr5.previous();
+                System.out.print("Generated date (DD/MM/YYYY): " + litr5.next().generated_date.get(Calendar.DATE));
+                litr5.previous();
+                System.out.print("/" + ((litr5.next().generated_date.get(Calendar.MONTH)) + 1));
+                litr5.previous();
+                System.out.println("/" + litr5.next().generated_date.get(Calendar.YEAR));
+                litr5.previous();
+                paid_check = litr5.next().paid_check;
+                System.out.println("Paid or unpaid: " + paid_check);
+                if (paid_check == 1) {
+                    litr5.previous();
+                    System.out.print("Paid date (DD/MM/YYYY): " + litr5.next().paid_date.get(Calendar.DATE));
+                    litr5.previous();
+                    System.out.print("/" + ((litr5.next().paid_date.get(Calendar.MONTH)) + 1));
+                    litr5.previous();
+                    System.out.println("/" + litr5.next().paid_date.get(Calendar.YEAR));
+                    litr5.previous();
+                    System.out.println("Payment type ID: " + litr5.next().payment_type);
+                }
+            }
+            System.out.println();
+
+            //Test DatabaseAccess.find_drug_id()
+            System.out.println("Test of DatabaseAccess.find_drug_id()");
+            int drug_id = DatabaseAccess.find_drug_id(conn, "Prednisone");
+            System.out.println("Drug ID for Prednisone: " + drug_id);
+            System.out.println();
+
+            //Test DatabaseAccess.add_new_prescription() for Jia Chen, using the PatientInfo object p_info from above
+            System.out.println("Test of DatabaseAccess.add_new_prescription()");
+            int success_prescription = DatabaseAccess.add_new_prescription(conn, p_info.id_num, 4, "50 mg", 10, "Take once daily for 10 days.", 9427);
+            if (success_prescription == 0)
+                System.out.println("Prescription successfully added.");
+            else
+                System.out.println("Prescription addition to database failed.");
 
             conn.close();
         } catch (Exception SQLException) {

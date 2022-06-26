@@ -1,7 +1,7 @@
 /* PatientChart.java
    Created by Christopher Walker.
    Created 25 June 2022.
-   Last modified 25 June 2022.
+   Last modified 26 June 2022.
    This file is an addition to the database_access package, most of which is defined in the file
    DatabaseAccess.java. The class PatientChart defines an entity meant to be returned by the method
    pull_chart_records. This entity could be used elsewhere in the program, but its main purpose is to be a
@@ -30,8 +30,8 @@ public class PatientChart {
             breathing_rate, systolic blood pressure, and diastolic blood pressure. Creates a new ChartRecord
             object using the given variables, then appends that object to record_list.
      */
-    void add_record(long record_num, int patient_id, Calendar record_date, double temperature, int pulse_rate, int breathing_rate, int blood_pressure_systolic, int blood_pressure_diastolic) {
-        ChartRecord cr = new ChartRecord(record_num, patient_id, record_date, temperature, pulse_rate, breathing_rate, blood_pressure_systolic, blood_pressure_diastolic);
+    void add_record(long record_num, int patient_id, Calendar record_date, double temperature, int pulse_rate, int breathing_rate, int blood_pressure_systolic, int blood_pressure_diastolic, int doctor_visited) {
+        ChartRecord cr = new ChartRecord(record_num, patient_id, record_date, temperature, pulse_rate, breathing_rate, blood_pressure_systolic, blood_pressure_diastolic, doctor_visited);
         record_list.add(cr);
         record_list_length++;
     }
