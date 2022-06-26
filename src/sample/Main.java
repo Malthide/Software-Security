@@ -1,5 +1,6 @@
 package sample;
 
+import database_access.DatabaseAccess;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,6 +15,9 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Main extends Application {
 
@@ -61,7 +65,11 @@ public class Main extends Application {
                 public void handle(ActionEvent actionEvent) {
                     String nameTemp = nameText.getText();
                     String IDTemp = IDText.getText();
-                    logInButton(nameTemp, IDTemp);
+                    try {
+                        logInButton(nameTemp, IDTemp);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
 
                 }
             });
@@ -77,11 +85,76 @@ public class Main extends Application {
 
         }//END OF NEW STAGE = 0
 
+
+
+        else if(newStage == 1){//Display textfield to enter doctor name
+            stage.setTitle("Health-Care System");
+            GridPane grid = new GridPane();
+            grid.setPadding(new Insets(25, 25, 25, 25));
+            grid.setVgap(18);
+            grid.setHgap(10);
+
+///////////////////////////////////////////////////////////////////////Enter Doctor's Name
+            Label logInLabel = new Label("LOG IN SUCCESSFUL:");
+            GridPane.setConstraints(logInLabel, 10, 3);
+
+            Label nameLabel = new Label("Enter Doctor's Name:");
+            GridPane.setConstraints(nameLabel, 14, 4);
+            TextField doctorNameText = new TextField();
+            doctorNameText.setMinSize(100, 45);
+            GridPane.setConstraints(doctorNameText, 16, 4);
+
+//////////////////////////////////////////////////////////////////////////////Button
+            Button enterDoctorNameButton = new Button("ENTER");
+            enterDoctorNameButton.setStyle("-fx-background-color: MediumSeaGreen");
+            enterDoctorNameButton.setMinSize(60, 45);
+            GridPane.setConstraints(enterDoctorNameButton, 15, 8);
+            enterDoctorNameButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    String nameTemp = doctorNameText.getText();
+
+                    doctorNameButton(nameTemp);
+
+                }
+            });
+
+        }
+        else if(newStage == 2){ //Enter Patient name, date and time
+
+        }
+
+
+
+
+
     }//END OF CHANGE STAGE FUNCTION
 
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
-    public void logInButton(String nameTemp, String IDTemp) {
+    public void logInButton(String nameTemp, String IDTemp) throws SQLException {
         System.out.println(nameTemp + " " + IDTemp);
+        String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
+        String database_username = "system";
+        String database_password = "YellowGreen27";
+        Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
+
+        DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp);
+
+        try {
+            changeStage(primaryStage,1);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void doctorNameButton(String doctorNameTemp){//get Doctors available date and time
+
+        try {
+            changeStage(primaryStage,2);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
