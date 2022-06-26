@@ -88,13 +88,13 @@ public class PopulateDatabase {
                     "temperature CHAR(32), " + //record as 3-digit number
                     "pulse_rate CHAR(32), " + //record as 3-digit number
                     "breathing_rate CHAR(32), " + //record as 3-digit number
-                    "blood_pressure_systolic CHAR(32), " + //record as 3-digit number
-                    "blood_pressure_diastolic CHAR(32), " + //record as 3-digit number
+                    "blood_pressure_systolic CHAR(32), " + //record as 4-digit number
+                    "blood_pressure_diastolic CHAR(32), " + //record as 4-digit number
                         "CONSTRAINT chart_records_pk PRIMARY KEY(id_num) ENABLE, " +
                         "CONSTRAINT chart_records_fk FOREIGN KEY(patient_id) REFERENCES patients(id_num) ENABLE" +
                 ")");
             stmt.executeQuery("CREATE TABLE appointments(" +
-                    "id_num NUMBER, " +
+                    "id_num NUMBER, " +     //These should just be sequential numbers starting at 1
                     "patient_id NUMBER, " +
                     "doctor_id NUMBER, " +
                     "appt_day NUMBER, " +

@@ -86,6 +86,17 @@ public class TestMainForDatabase {
             System.out.println("ZIP Code: " + p_info.zip_code);
             System.out.println("Insurance provider id number: " + p_info.insurance_provider);
             System.out.println("Insurance policy number: " + p_info.policy_num);
+            System.out.println();
+
+            //Test DatabaseAccess.pull_patient_ssn() for the same patient
+            String ssn = DatabaseAccess.pull_patient_ssn(conn, p_info);
+            System.out.println("Patient ssn: " + ssn);
+
+            //Test DatabaseAccess.pull_appt_schedule()
+
+            //Test DatabaseAccess.add_appt_to_schedule()
+
+            //Test DatabaseAccess.pull_chart_records()
 
             conn.close();
         } catch (Exception SQLException) {

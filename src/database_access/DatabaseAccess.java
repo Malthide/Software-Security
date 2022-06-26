@@ -1,16 +1,19 @@
 /* DatabaseAccess.java
    Created by Christopher Walker.
    Created 14 June 2022.
-   Last modified 23 June 2022.
+   Last modified 25 June 2022.
    This package provides access functions to a specified SQL database connection. The methods provided here
    are designed for ease of database access and according to the design specifications given in the project
    description.
    Development Update: At this time, the only methods completed are the verify_user_pass() function, the
-   pull_user_info function(), the pull_doctor_schedule() function, and the pull_patient_info() function.
-   Verify_user_pass() should be used in the "Login" use case found in the project description. Pull_user_info()
-   should be used to find the user's ID number and authorization level (to determine access permissions).
-   Pull_doctor_schedule() and pull_patient_info() should be used in the "Make Appointment" use case found in
-   the project description.
+   pull_user_info function(), the pull_doctor_schedule() function, the pull_patient_info() function, the
+   pull_patient_ssn() function, the pull_appt_schedule() function, the add_appt_to_schedule() function, and
+   the pull_chart_records() function. Verify_user_pass() should be used in the "Login" use case found in the
+   project description. Pull_user_info() should be used to find the user's ID number and authorization level
+   (to determine access permissions). Pull_doctor_schedule(), pull_patient_info(), pull_appt_schedule(), and
+   add_appt_to_schedule() should be used in the "Make Appointment" use case found in the project description.
+   Pull_patient_info(), pull_appt_schedule(), pull_patient_ssn(), and pull_chart_records() should be used in
+   the "Check-in Patient" use case.
  */
 
 
@@ -247,33 +250,201 @@ public class DatabaseAccess {
     }
 
 
-    public static void update_patient_info(PatientInfo p_info) {
-        //Changes the info for the given patient in the database
+    public static int update_patient_info(Connection conn, PatientInfo p_info) {
+        //Changes the info for the given patient in the database. Returns an int if successful or error.
+        return 0;
     }
 
 
-    public static void pull_patient_ssn(int patient_id) {
-        //Returns the ssn corresponding to patient_id
+    /* pull_patient_ssn: Takes a database connection conn and a PatientInfo object p_info already created from
+            the method pull_patient_info() defined above. Returns the social security number for the patient
+            described in p_info as a string. Returns the string "AAAAAAAAA" if the patient was not found in
+            the database. Returns the string "SSSSSSSSS" if an SQL Exception occurs.
+     */
+    public static String pull_patient_ssn(Connection conn, PatientInfo p_info) {
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT ssn FROM patients WHERE id_num = " + p_info.id_num;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true)
+                return "AAAAAAAAA";
+
+            String e_ssn = rs.getString("ssn");
+            byte[] enc_ssn = DatabaseSecurity.hex_string_to_byte_array(e_ssn);
+            String ssn = DatabaseSecurity.decrypt(enc_ssn);
+            ssn = ssn.substring(0, 10);
+
+            return ssn;
+        } catch (Exception SQLException) {
+            return "SSSSSSSSS";
+        }
     }
 
 
-    public static void update_patient_ssn(int patient_id, String new_ssn) {
-        //Changes the ssn in the database for the given patient_id to the new ssn
+    public static int update_patient_ssn(Connection conn, PatientInfo p_info, String new_ssn) {
+        //Changes the ssn in the database for the given patient_id to the new ssn. Returns an into for success or failure.
+        return 0;
     }
 
 
-    static public void pull_appt_schedule() {
+    /* pull_appt_schedule: Takes a database connection conn. Returns data from the appointments table of the
+            database as an ApptSchedule object (which is defined in the file ApptSchedule.java found within
+            the database_access package). If no appointments are found, returns an ApptSchedule object with
+            no records in appt_list. If an SQL exception occurs, returns an ApptSchedule object with an
+            Appointment in appt_list with appt_id -1.
+     */
+    static public ApptSchedule pull_appt_schedule(Connection conn) {
+        ApptSchedule appt_s = new ApptSchedule();
+        int appt_id;
+        int patient_id;
+        int doctor_id;
+        int appt_day;
+        int appt_month;
+        int appt_year;
+        int appt_hour;
+        int appt_minute;
+        Calendar date_time;
+        int no_show;
 
+        try {
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String query = "SELECT * FROM appointments";
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true) {
+                return appt_s;
+            }
+
+            rs.last();
+            int num_results = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            for (int i = 0; i < num_results; i++) {
+                appt_id = rs.getInt("id_num");
+                patient_id = rs.getInt("patient_id");
+                doctor_id = rs.getInt("doctor_id");
+                appt_day = rs.getInt("appt_day");
+                appt_month = rs.getInt("appt_month");
+                appt_year = rs.getInt("appt_year");
+                appt_hour = rs.getInt("appt_hour");
+                appt_minute = rs.getInt("appt_hour");
+                no_show = rs.getInt("no_show");
+
+                date_time = Calendar.getInstance();
+                date_time.set(appt_year, appt_month, appt_day, appt_hour, appt_minute);
+
+                appt_s.add_appointment(appt_id, patient_id, doctor_id, date_time, no_show);
+            }
+
+            return appt_s;
+        } catch (Exception SQLException) {
+            date_time = Calendar.getInstance();
+            appt_s.add_appointment(-1, -1, -1, date_time, -1);
+            return appt_s;
+        }
     }
 
 
-    static public void add_appt_to_schedule() {
-        //Takes an appointment object or appointment information and saves its info in the database.
+    /* add_appt_to_schedule: Takes a database connection conn, an ApptSchedule object appt_s, a patient_id,
+            doctor_id, and Calendar object date_time. Inserts this appointment information into the database
+            and adds a new appointment object to the appt_list of appt_s. Returns 0 for successful execution
+            or 2 for an SQL exception.
+     */
+    static public int add_appt_to_schedule(Connection conn, ApptSchedule appt_s, int patient_id, int doctor_id, Calendar date_time) {
+        int new_appt_id = appt_s.appt_list_length + 1;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "INSERT INTO appointments VALUES (" + new_appt_id + ", " + patient_id + ", " + doctor_id + ", " + date_time.get(Calendar.DATE) + ", " + date_time.get(Calendar.MONTH) + ", " + date_time.get(Calendar.YEAR) + ", " + date_time.get(Calendar.HOUR) + ", " + date_time.get(Calendar.MINUTE) + ", " + "0)";
+            stmt.executeQuery(query);
+
+            appt_s.add_appointment(new_appt_id, patient_id, doctor_id, date_time, 0);
+
+            return 0;
+        } catch (Exception SQLException) {
+            return 2;
+        }
     }
 
 
-    static public void pull_chart_records(int patient_id) {
-        //Returns a list of all chart record objects corresponding to patient_id
+    /* pull_chart_records: Takes a database Connection conn and a patient_id. Returns a PatientChart object,
+            defined in PatientChart.java, containing a list of ChartRecord objects that correspond to
+            patient_id. If no records are found for the patient, returns a PatientChart object with an
+            empty list. If an SQLException occurs, returns a PatientChart object with a ChartRecord with
+            record_num -1.
+     */
+    static public PatientChart pull_chart_records(Connection conn, int patient_id) {
+        PatientChart p_chart = new PatientChart();
+        int record_num;
+        int record_day;
+        int record_month;
+        int record_year;
+        Calendar record_date;
+        String e_temperature;
+        byte[] enc_temperature;
+        int temperature;
+        String e_p_rate;
+        byte[] enc_p_rate;
+        int pulse_rate;
+        String e_b_rate;
+        byte[] enc_b_rate;
+        int breathing_rate;
+        String e_bps;
+        byte[] enc_bps;
+        int blood_pressure_systolic;
+        String e_bpd;
+        byte[] enc_bpd;
+        int blood_pressure_diastolic;
+
+        try {
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String query = "SELECT * FROM chart_records WHERE patient_id = " + patient_id;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true) {
+                return p_chart;
+            }
+
+            rs.last();
+            int num_results = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            for (int i = 0; i < num_results; i++) {
+                record_num = rs.getInt("id_num");
+                record_day = rs.getInt("record_day");
+                record_month = rs.getInt("record_month");
+                record_year = rs.getInt("record_year");
+                e_temperature = rs.getString("temperature");
+                e_p_rate = rs.getString("pulse_rate");
+                e_b_rate = rs.getString("breathing_rate");
+                e_bps = rs.getString("blood_pressure_systolic");
+                e_bpd = rs.getString("blood_pressure_diastolic");
+
+                enc_temperature = DatabaseSecurity.hex_string_to_byte_array(e_temperature);
+                enc_p_rate = DatabaseSecurity.hex_string_to_byte_array(e_p_rate);
+                enc_b_rate = DatabaseSecurity.hex_string_to_byte_array(e_b_rate);
+                enc_bps = DatabaseSecurity.hex_string_to_byte_array(e_bps);
+                enc_bpd = DatabaseSecurity.hex_string_to_byte_array(e_bpd);
+
+                temperature = Integer.parseInt((DatabaseSecurity.decrypt(enc_temperature)).substring(0, 4));
+                pulse_rate = Integer.parseInt((DatabaseSecurity.decrypt(enc_p_rate)).substring(0, 4));
+                breathing_rate = Integer.parseInt((DatabaseSecurity.decrypt(enc_b_rate)).substring(0,4));
+                blood_pressure_systolic = Integer.parseInt((DatabaseSecurity.decrypt(enc_bps)).substring(0, 5));
+                blood_pressure_diastolic = Integer.parseInt((DatabaseSecurity.decrypt(enc_bpd)).substring(0, 5));
+
+                record_date = Calendar.getInstance();
+                record_date.set(record_year, record_month, record_day);
+
+                p_chart.add_record(record_num, patient_id, record_date, temperature, pulse_rate, breathing_rate, blood_pressure_systolic, blood_pressure_diastolic);
+            }
+
+            return p_chart;
+        } catch (Exception SQLException) {
+            record_date = Calendar.getInstance();
+            p_chart.add_record(-1, -1, record_date, -1, -1, -1, -1, -1);
+            return p_chart;
+        }
     }
 
 
