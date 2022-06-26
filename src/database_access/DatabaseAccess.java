@@ -5,15 +5,31 @@
    This package provides access functions to a specified SQL database connection. The methods provided here
    are designed for ease of database access and according to the design specifications given in the project
    description.
-   Development Update: At this time, the only methods completed are the verify_user_pass() function, the
-   pull_user_info function(), the pull_doctor_schedule() function, the pull_patient_info() function, the
-   pull_patient_ssn() function, the pull_appt_schedule() function, the add_appt_to_schedule() function, and
-   the pull_chart_records() function. Verify_user_pass() should be used in the "Login" use case found in the
-   project description. Pull_user_info() should be used to find the user's ID number and authorization level
-   (to determine access permissions). Pull_doctor_schedule(), pull_patient_info(), pull_appt_schedule(), and
-   add_appt_to_schedule() should be used in the "Make Appointment" use case found in the project description.
-   Pull_patient_info(), pull_appt_schedule(), pull_patient_ssn(), and pull_chart_records() should be used in
-   the "Check-in Patient" use case.
+   Suggested methods for each use case:
+        Login:
+            verify_user_pass()
+            pull_user_info() (to find user's ID number and authorization level for access permissions)
+        Make appointment:
+            pull_doctor_id_list()
+            find_doctor_id()
+            find_doctor_name()
+            pull_doctor_schedule()
+            pull_patient_info()
+            pull_appt_schedule()
+            add_appt_to_schedule()
+        Check-in patient:
+            find_doctor_name()
+            find_patient_id()
+            pull_patient_info()
+            pull_appt_schedule()
+            pull_patient_ssn()
+            pull_chart_records()
+
+   Development Update: At this time, the methods update_patient_info(), add_new_chart_record(),
+        update_chart_record(), pull_payment_records(), add_new_payment_record(), update_payment_record(),
+        find_drug_id(), and add_new_prescription() have not been fully implemented nor tested. All other
+        methods have been tested.
+
  */
 
 
@@ -92,6 +108,116 @@ public class DatabaseAccess {
             System.out.println(SQLException);
             UserInfo e_info = new UserInfo(-1, "00", "00", "00", -1);
             return e_info;
+        }
+    }
+
+
+    /* pull_doctor_id_list: Takes a database Connection conn. Returns a DoctorIDList object (defined in
+            DoctorIDList.java) containing a list of all doctors' names and ID numbers. If an SQL exception
+            occurs, returns an empty DoctorIDList object.
+     */
+    static public DoctorIDList pull_doctor_id_list(Connection conn) {
+        DoctorIDList id_list = new DoctorIDList();
+        int id_num;
+        byte[] enc_f_name;
+        byte[] enc_l_name;
+        String efn;
+        String eln;
+        String first_name;
+        String last_name;
+        int f_name_length;
+        int l_name_length;
+
+        try {
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String query = "SELECT * FROM user_info WHERE authorization_level = 2";
+            ResultSet rs = stmt.executeQuery(query);
+
+            rs.last();
+            int num_results = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            for (int i = 0; i < num_results; i++) {
+                id_num = rs.getInt("id_num");
+                efn = rs.getString("first_name");
+                f_name_length = rs.getInt("first_name_length");
+                eln = rs.getString("last_name");
+                l_name_length = rs.getInt("last_name_length");
+
+                enc_f_name = DatabaseSecurity.hex_string_to_byte_array(efn);
+                enc_l_name = DatabaseSecurity.hex_string_to_byte_array(eln);
+
+                first_name = (DatabaseSecurity.decrypt(enc_f_name)).substring(0, f_name_length);
+                last_name = (DatabaseSecurity.decrypt(enc_l_name)).substring(0, l_name_length);
+
+                id_list.add_item(id_num, first_name, last_name);
+                rs.next();
+            }
+
+            return id_list;
+        } catch (Exception SQLException) {
+            return id_list;
+        }
+    }
+
+
+    /* find_doctor_id: Takes a database Connection conn, a first_name, and a last_name. Returns the id_num of
+            the corresponding doctor. If no id is found, returns -3. If an SQLException occurs, returns -1.
+     */
+    static public int find_doctor_id(Connection conn, String first_name, String last_name) {
+        byte[] enc_f_name = new byte[64];
+        byte[] enc_l_name = new byte[64];
+
+        try {
+            enc_f_name = DatabaseSecurity.encrypt(first_name, 64);
+            String efn = DatabaseSecurity.byte_array_to_hex_string(enc_f_name);
+            enc_l_name = DatabaseSecurity.encrypt(last_name, 64);
+            String eln = DatabaseSecurity.byte_array_to_hex_string(enc_l_name);
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM user_info WHERE first_name = '" + efn + "' AND last_name = '" + eln + "'");
+
+            if (rs.next() != true) {
+                return -3;
+            }
+
+            return rs.getInt("id_num");
+        } catch (Exception SQLException) {
+            return -1;
+        }
+    }
+
+
+    /* find_doctor_name: Takes a database Connection conn and a doctor_id. Returns a string of the doctor's
+            full name. If the doctor_id is not found, returns the string "-3". If an SQLException occurs,
+            returns the string "-1".
+     */
+    static public String find_doctor_name(Connection conn, int doctor_id) {
+        byte[] enc_f_name = new byte[64];
+        byte[] enc_l_name = new byte[64];
+
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM user_info WHERE id_num = " + doctor_id);
+
+            if (rs.next() != true) {
+                return "-3";
+            }
+
+            String efn = rs.getString("first_name");
+            int first_name_length = rs.getInt("first_name_length");
+            String eln = rs.getString("last_name");
+            int last_name_length = rs.getInt("last_name_length");
+
+            enc_f_name = DatabaseSecurity.hex_string_to_byte_array(efn);
+            enc_l_name = DatabaseSecurity.hex_string_to_byte_array(eln);
+
+            String first_name = (DatabaseSecurity.decrypt(enc_f_name)).substring(0, first_name_length);
+            String last_name = (DatabaseSecurity.decrypt(enc_l_name)).substring(0, last_name_length);
+
+            return first_name + " " + last_name;
+        } catch (Exception SQLException) {
+            return "-1";
         }
     }
 
@@ -235,8 +361,8 @@ public class DatabaseAccess {
             street_address = street_address.substring(0, street_address_length);
             city = city.substring(0, city_length);
             us_state = us_state.substring(0, us_state_length);
-            zip_code = zip_code.substring(0, 6);
-            phone_num = phone_num.substring(0, 11);
+            zip_code = zip_code.substring(0, 5);
+            phone_num = phone_num.substring(0, 10);
             insurance_policy_num = insurance_policy_num.substring(0, insurance_policy_num_length);
 
             PatientInfo p_info = new PatientInfo(id_num, first_name, last_name, birth_date, street_address, city, us_state, zip_code, phone_num, insurance_provider, insurance_policy_num);
@@ -246,6 +372,60 @@ public class DatabaseAccess {
             Calendar e1 = Calendar.getInstance();
             PatientInfo e1_info = new PatientInfo(-1, "00", "00", e1, "00", "00", "00", "00", "00", -1, "00");
             return e1_info;
+        }
+    }
+
+
+    /* find_patient_id: Takes a database Connection conn, a first_name, and a last_name. Returns the id_num of
+            the corresponding patient. If no id is found, returns -3. If more than one patient was found with
+            the same name and birthdate, returns -2. If an SQLException occurs, returns -1.
+     */
+    static public int find_patient_id(Connection conn, String first_name, String last_name, Calendar birthdate) {
+        byte[] enc_f_name = new byte[64];
+        byte[] enc_l_name = new byte[64];
+        byte[] enc_b_date = new byte[16];
+
+        //This block of code converts the given birthdate from a Calendar object into integer values and a string b_date_str in form DDMMYYYY.
+        int b_day = birthdate.get(Calendar.DATE);
+        int b_month = birthdate.get(Calendar.MONTH);
+        int b_year = birthdate.get(Calendar.YEAR);
+        Integer b_day_ob = b_day;
+        Integer b_month_ob = b_month;
+        Integer b_year_ob = b_year;
+        String b_date_str;
+        String b_day_str = b_day_ob.toString();
+        String b_month_str = b_month_ob.toString();
+        String b_year_str = b_year_ob.toString();
+        if (b_day_str.length() == 1)
+            b_day_str = "0" + b_day_str;
+        if (b_month_str.length() == 1)
+            b_month_str = "0" + b_month_str;
+        b_date_str = b_day_str + b_month_str + b_year_str;
+
+        try {
+            enc_f_name = DatabaseSecurity.encrypt(first_name, 64);
+            String efn = DatabaseSecurity.byte_array_to_hex_string(enc_f_name);
+            enc_l_name = DatabaseSecurity.encrypt(last_name, 64);
+            String eln = DatabaseSecurity.byte_array_to_hex_string(enc_l_name);
+            enc_b_date = DatabaseSecurity.encrypt(b_date_str, 16);
+            String ebd = DatabaseSecurity.byte_array_to_hex_string(enc_b_date);
+
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = stmt.executeQuery("SELECT * FROM patients WHERE first_name = '" + efn + "' AND last_name = '" + eln + "' AND birthdate = '" + ebd + "'");
+
+            if (rs.next() != true)
+                return -3;
+
+            rs.last();
+            int num_results = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            if (num_results > 1)
+                return -2;
+
+            return rs.getInt("id_num");
+        } catch (Exception SQLException) {
+            return -1;
         }
     }
 
@@ -273,7 +453,7 @@ public class DatabaseAccess {
             String e_ssn = rs.getString("ssn");
             byte[] enc_ssn = DatabaseSecurity.hex_string_to_byte_array(e_ssn);
             String ssn = DatabaseSecurity.decrypt(enc_ssn);
-            ssn = ssn.substring(0, 10);
+            ssn = ssn.substring(0, 9);
 
             return ssn;
         } catch (Exception SQLException) {
@@ -328,13 +508,15 @@ public class DatabaseAccess {
                 appt_month = rs.getInt("appt_month");
                 appt_year = rs.getInt("appt_year");
                 appt_hour = rs.getInt("appt_hour");
-                appt_minute = rs.getInt("appt_hour");
+                appt_minute = rs.getInt("appt_minute");
                 no_show = rs.getInt("no_show");
 
                 date_time = Calendar.getInstance();
                 date_time.set(appt_year, appt_month, appt_day, appt_hour, appt_minute);
 
                 appt_s.add_appointment(appt_id, patient_id, doctor_id, date_time, no_show);
+
+                rs.next();
             }
 
             return appt_s;
@@ -375,15 +557,15 @@ public class DatabaseAccess {
             record_num -1.
      */
     static public PatientChart pull_chart_records(Connection conn, int patient_id) {
-        PatientChart p_chart = new PatientChart();
-        int record_num;
+        PatientChart p_chart = new PatientChart(patient_id);
+        long record_num;
         int record_day;
         int record_month;
         int record_year;
         Calendar record_date;
         String e_temperature;
         byte[] enc_temperature;
-        int temperature;
+        double temperature;
         String e_p_rate;
         byte[] enc_p_rate;
         int pulse_rate;
@@ -411,7 +593,7 @@ public class DatabaseAccess {
             rs.first();
 
             for (int i = 0; i < num_results; i++) {
-                record_num = rs.getInt("id_num");
+                record_num = rs.getLong("id_num");
                 record_day = rs.getInt("record_day");
                 record_month = rs.getInt("record_month");
                 record_year = rs.getInt("record_year");
@@ -427,11 +609,11 @@ public class DatabaseAccess {
                 enc_bps = DatabaseSecurity.hex_string_to_byte_array(e_bps);
                 enc_bpd = DatabaseSecurity.hex_string_to_byte_array(e_bpd);
 
-                temperature = Integer.parseInt((DatabaseSecurity.decrypt(enc_temperature)).substring(0, 4));
-                pulse_rate = Integer.parseInt((DatabaseSecurity.decrypt(enc_p_rate)).substring(0, 4));
-                breathing_rate = Integer.parseInt((DatabaseSecurity.decrypt(enc_b_rate)).substring(0,4));
-                blood_pressure_systolic = Integer.parseInt((DatabaseSecurity.decrypt(enc_bps)).substring(0, 5));
-                blood_pressure_diastolic = Integer.parseInt((DatabaseSecurity.decrypt(enc_bpd)).substring(0, 5));
+                temperature = Double.parseDouble((DatabaseSecurity.decrypt(enc_temperature)).substring(0, 5));
+                pulse_rate = Integer.parseInt((DatabaseSecurity.decrypt(enc_p_rate)).substring(0, 3));
+                breathing_rate = Integer.parseInt((DatabaseSecurity.decrypt(enc_b_rate)).substring(0,3));
+                blood_pressure_systolic = Integer.parseInt((DatabaseSecurity.decrypt(enc_bps)).substring(0, 4));
+                blood_pressure_diastolic = Integer.parseInt((DatabaseSecurity.decrypt(enc_bpd)).substring(0, 4));
 
                 record_date = Calendar.getInstance();
                 record_date.set(record_year, record_month, record_day);
@@ -473,7 +655,7 @@ public class DatabaseAccess {
     }
 
 
-    static public int pull_drug_id(String drug_name) {
+    static public int find_drug_id(String drug_name) {
         //Returns the id_num of the given drug in the database or an error flag (-1?) if not found
         return -1;
     }

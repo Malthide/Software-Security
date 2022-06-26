@@ -1,11 +1,15 @@
 /* PopulateDatabase.java
    Created by Christopher Walker.
    Created 15 June 2022.
-   Last modified 22 June 2022.
+   Last modified 25 June 2022.
+   THIS FILE SHOULD ONLY BE INCLUDED AS COMMENTED-OUT CODE IN THE FINAL PROJECT AND SHOULD ONLY BE RUN IF
+   NEEDED TO SET UP OR RESET THE DATABASE.
    This file should only be run once. This program creates a table in the SQL database for usernames and
    passwords. It then puts initial hash values of passwords, along with their corresponding usernames, into
    that table. The code has been commented out in order to prevent runtime errors. To run this program,
    remove the comment markers surrounding main().
+   If you need to run this file again, remove the comment markers surrounding the "DROP TABLE" queries. This
+   will delete the existing tables so that the tables can be recreated with the rest of the code.
  */
 
 
@@ -80,12 +84,12 @@ public class PopulateDatabase {
                         "CONSTRAINT patients_fk FOREIGN KEY(insurance_provider) REFERENCES insurance_providers(id_num) ENABLE" +
                 ")");
             stmt.executeQuery("CREATE TABLE chart_records(" +
-                    "id_num NUMBER, " +
+                    "id_num NUMBER, " + //This should be a long int
                     "patient_id NUMBER, " +
                     "record_day NUMBER, " +
                     "record_month NUMBER, " +
                     "record_year NUMBER, " +
-                    "temperature CHAR(32), " + //record as 3-digit number
+                    "temperature CHAR(32), " + //record as 3-digit number and 1 decimal digit
                     "pulse_rate CHAR(32), " + //record as 3-digit number
                     "breathing_rate CHAR(32), " + //record as 3-digit number
                     "blood_pressure_systolic CHAR(32), " + //record as 4-digit number
@@ -124,9 +128,9 @@ public class PopulateDatabase {
                         "CONSTRAINT payment_types_pk PRIMARY KEY(id_num) ENABLE" +
                 ")");
             stmt.executeQuery("CREATE TABLE payments(" +
-                    "reference_num NUMBER, " +
+                    "reference_num NUMBER, " + //This should be a long int
                     "patient_id NUMBER, " +
-                    "amount CHAR(32), " +
+                    "amount CHAR(32), " +   //recorded as an 8-digit number and two decimals
                     "generated_day NUMBER, " +
                     "generated_month NUMBER, " +
                     "generated_year NUMBER, " +
@@ -271,6 +275,34 @@ public class PopulateDatabase {
             epol = DatabaseSecurity.byte_array_to_hex_string(enc_policy);
             stmt.executeQuery("INSERT INTO patients VALUES (1094273, '" + efn + "', 3, '" + eln + "', 4, '" + eb + "', '" + esa + "', 18, '" + ec + "', 7, '" + es + "', 5, '" + ez + "', '" + ep + "', '" + essn + "', 2, '" + epol + "', 12)");
 
+            //This code is for populating the table chart_records.
+            byte[] enc_temperature = new byte[16];
+            byte[] enc_pulse = new byte[16];
+            byte[] enc_breathing = new byte[16];
+            byte[] enc_bps = new byte[16];
+            byte[] enc_bpd = new byte[16];
+            String etemp;
+            String epls;
+            String ebreath;
+            String ebps;
+            String ebpd;
+
+            enc_temperature = DatabaseSecurity.encrypt("098.7", 16);
+            etemp = DatabaseSecurity.byte_array_to_hex_string(enc_temperature);
+            enc_pulse = DatabaseSecurity.encrypt("074", 16);
+            epls = DatabaseSecurity.byte_array_to_hex_string(enc_pulse);
+            enc_breathing = DatabaseSecurity.encrypt("032", 16);
+            ebreath = DatabaseSecurity.byte_array_to_hex_string(enc_breathing);
+            enc_bps = DatabaseSecurity.encrypt("0121", 16);
+            ebps = DatabaseSecurity.byte_array_to_hex_string(enc_bps);
+            enc_bpd = DatabaseSecurity.encrypt("0072", 16);
+            ebpd = DatabaseSecurity.byte_array_to_hex_string(enc_bpd);
+            stmt.executeQuery("INSERT INTO chart_records VALUES (150006481275, 1094273, 21, 6, 2022, '" + etemp + "', '" + epls + "', '" + ebreath + "', '" + ebps + "', '" + ebpd + "')");
+
+            //This code is for populating the table appointments.
+            stmt.executeQuery("INSERT INTO appointments VALUES (1, 1094273, 9427, 21, 6, 2022, 11, 30, 1)");
+            stmt.executeQuery("INSERT INTO appointments VALUES (2, 1094273, 9427, 5, 7, 2022, 13, 30, 0)");
+
             //This code is for populating the table doctor_schedule.
             stmt.executeQuery("INSERT INTO doctor_schedule VALUES (9427, 5, 7, 2022, 8, 0, 17, 0)");
             stmt.executeQuery("INSERT INTO doctor_schedule VALUES (9427, 6, 7, 2022, 8, 0, 17, 0)");
@@ -283,6 +315,14 @@ public class PopulateDatabase {
             stmt.executeQuery("INSERT INTO payment_types VALUES (0, 'cash')");
             stmt.executeQuery("INSERT INTO payment_types VALUES (1, 'credit card')");
             stmt.executeQuery("INSERT INTO payment_types VALUES (2, 'debit card')");
+
+            //This code is for populating the table payments.
+            byte[] enc_amount = new byte[16];
+            String eamount;
+
+            enc_amount = DatabaseSecurity.encrypt("00000030.00", 16);
+            eamount = DatabaseSecurity.byte_array_to_hex_string(enc_amount);
+            stmt.executeQuery("INSERT INTO payments VALUES (9087562712654, 1094273, '" + eamount + "', 21, 6, 2022, 1, 24, 6, 2022, 1)");
 
             //This code is for populating the table drug_types.
             byte[] enc_d_name = new byte[64];
@@ -307,6 +347,18 @@ public class PopulateDatabase {
             enc_d_name = DatabaseSecurity.encrypt("Prednisone", 64);
             edn = DatabaseSecurity.byte_array_to_hex_string(enc_d_name);
             stmt.executeQuery("INSERT INTO drug_types VALUES (4, '" + edn + "', 10)");
+
+            //This code is for populating the table prescriptions.
+            byte[] enc_dose = new byte[64];
+            byte[] enc_instructions = new byte[256];
+            String eds;
+            String eins;
+
+            enc_dose = DatabaseSecurity.encrypt("500 mg", 64);
+            eds = DatabaseSecurity.byte_array_to_hex_string(enc_dose);
+            enc_instructions = DatabaseSecurity.encrypt("Take one pill by mouth every 12 hours for 10 days.", 256);
+            eins = DatabaseSecurity.byte_array_to_hex_string(enc_instructions);
+            stmt.executeQuery("INSERT INTO prescriptions VALUES (652834, 1094273, 0, 21, 6, 2022, '" + eds + "', 6, 20, '" + eins + "', 50)");
 
             conn.close();
         } catch (Exception SQLException) {
