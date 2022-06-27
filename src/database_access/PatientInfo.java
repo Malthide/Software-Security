@@ -1,7 +1,7 @@
 /* PatientInfo.java
    Create by Christopher Walker.
    Created 22 June 2022.
-   Last modified 22 June 2022.
+   Last modified 26 June 2022.
    This file is an addition to the database_access package, most of which is defined in the file
    DatabaseAccess.java. The class PatientInfo defines an entity meant to be returned by the method
    pull_patient_info. This entity could be used elsewhere in the program, but its main purpose is to be a
@@ -32,7 +32,7 @@ public class PatientInfo {
     public int insurance_provider;
     public String policy_num;
 
-    PatientInfo(int id_num, String first_name, String last_name, Calendar birthdate, String street_address, String city, String us_state, String zip_code, String phone_number, int insurance_provider, String policy_num) {
+    public PatientInfo(int id_num, String first_name, String last_name, Calendar birthdate, String street_address, String city, String us_state, String zip_code, String phone_number, int insurance_provider, String policy_num) {
         this.id_num = id_num;
         this.first_name = first_name;
         this.last_name = last_name;

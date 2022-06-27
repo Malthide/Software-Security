@@ -1,7 +1,7 @@
-/* TimeSlot.java
+/* PaymentRecord.java
    Create by Christopher Walker.
    Created 26 June 2022.
-   Last modified 26 June 2022.
+   Last modified 27 June 2022.
    This file is an addition to the database_access package, most of which is defined in the file
    DatabaseAccess.java. PaymentRecord is an entity class that can be used to record information about a payment
    transaction.
@@ -20,14 +20,16 @@ import java.util.Calendar;
  */
 public class PaymentRecord {
     public long reference_num;
+    int patient_id;
     public double amount;
     public Calendar generated_date;
     public int paid_check;     //contains 1 if paid or 0 if not paid
     public Calendar paid_date;
     public int payment_type;   //contains 0 for cash, 1 for credit card, or 2 for debit card
 
-    PaymentRecord(long reference_num, double amount, Calendar generated_date, int paid_check, Calendar paid_date, int payment_type) {
+    public PaymentRecord(long reference_num, int patient_id, double amount, Calendar generated_date, int paid_check, Calendar paid_date, int payment_type) {
         this.reference_num = reference_num;
+        this.patient_id = patient_id;
         this.amount = amount;
         this.generated_date = generated_date;
         this.paid_check = paid_check;

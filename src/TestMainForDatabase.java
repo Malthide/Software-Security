@@ -1,7 +1,7 @@
 /* TestMainForDatabase.java
    Created by Christopher Walker.
    Created 14 June 2022.
-   Last modified 26 June 2022.
+   Last modified 27 June 2022.
    THIS FILE SHOULD NOT BE INCLUDED IN THE FINAL PROJECT.
    This program can be run to test the database_access package. It also provides a template for how methods
    in that package should be accessed. Especially note the import statements and how the connection to the
@@ -197,6 +197,7 @@ public class TestMainForDatabase {
             //Test DatabaseAccess.pull_chart_records() for patient Jia Chen, whose info is saved above in the object p_info
             System.out.println("Test of DatabaseAccess.pull_chart_records()");
             PatientChart p_chart = DatabaseAccess.pull_chart_records(conn, p_info.id_num);
+            System.out.println("p_chart length: " + p_chart.record_list_length);
             System.out.println("Patient ID: " + p_chart.patient_id);
             ListIterator<ChartRecord> litr4 = p_chart.record_list.listIterator();
             while (litr4.hasNext()) {
@@ -224,11 +225,22 @@ public class TestMainForDatabase {
             }
             System.out.println();
 
+            //Test DatabaseAccess.add_new_chart_record() for Jia Chen, whose info is stored in the PatientInfo object p_info above
+            System.out.println("Test of DatabaseAccess.add_new_chart_record()");
+            Calendar today1 = Calendar.getInstance();
+            ChartRecord c_record1 = new ChartRecord(817455210084L, p_info.id_num, today1, 99.1, 68, 53, 119, 79, 3852);
+            int success_add_c_record = DatabaseAccess.add_new_chart_record(conn, c_record1);
+            if (success_add_c_record == 0)
+                System.out.println("New chart record added successfully.");
+            else
+                System.out.println("Chart recorded addition failed.");
+            System.out.println();
+
             //Test DatabaseAccess.update_chart_record() for a chart record of patient Jia Chen, found in p_chart above
             System.out.println("Test of DatabaseAccess.update_chart_record()");
-            ChartRecord c_record = litr4.previous();
-            c_record.pulse_rate = 82;
-            int success_update_c_record = DatabaseAccess.update_chart_record(conn, c_record);
+            ChartRecord c_record2 = litr4.previous();
+            c_record2.pulse_rate = 82;
+            int success_update_c_record = DatabaseAccess.update_chart_record(conn, c_record2);
             if (success_update_c_record == 0)
                 System.out.println("Chart record successfully updated.");
             else
@@ -267,13 +279,25 @@ public class TestMainForDatabase {
             }
             System.out.println();
 
+            //Test DatabaseAccess.add_new_payment_record() using a PaymentRecord object
+            //9087562712654, 1094273
+            System.out.println("Test of DatabaseAccess.add_new_payment_record()");
+            Calendar today2 = Calendar.getInstance();
+            PaymentRecord pay_record1 = new PaymentRecord(6250916483948L, 1094273, 55.0, today2, 0, today2, -2); //note that if paid_check is 0, it doesn't matter what values are put in paid_date and payment_type
+            int success_add_p_record = DatabaseAccess.add_new_payment_record(conn, pay_record1);
+            if (success_add_p_record == 0)
+                System.out.println("New payment record added successfully.");
+            else
+                System.out.println("New payment record addition failed.");
+            System.out.println();
+
             //Test DatabaseAccess.update_payment_record() using a PaymentRecord object from the Payments object payments created above
             System.out.println("Test of DatabaseAccess.update_payment_record()");
-            PaymentRecord pay_record = litr5.previous();
-            pay_record.paid_check = 1;
-            pay_record.paid_date.set(2022, 6, 1);
-            pay_record.payment_type = 0;
-            int success_update_p_record = DatabaseAccess.update_payment_record(conn, pay_record);
+            PaymentRecord pay_record2 = litr5.previous();
+            pay_record2.paid_check = 1;
+            pay_record2.paid_date.set(2022, 6, 1);
+            pay_record2.payment_type = 0;
+            int success_update_p_record = DatabaseAccess.update_payment_record(conn, pay_record2);
             if (success_update_p_record == 0)
                 System.out.println("Payment record update successful.");
             else

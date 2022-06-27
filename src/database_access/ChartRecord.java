@@ -26,7 +26,7 @@ public class ChartRecord {
     public int blood_pressure_diastolic;
     public int doctor_visited;  //doctor's id number
 
-    ChartRecord(long record_num, int patient_id, Calendar record_date, double temperature, int pulse_rate, int breathing_rate, int blood_pressure_systolic, int blood_pressure_diastolic, int doctor_visited) {
+    public ChartRecord(long record_num, int patient_id, Calendar record_date, double temperature, int pulse_rate, int breathing_rate, int blood_pressure_systolic, int blood_pressure_diastolic, int doctor_visited) {
         this.record_num = record_num;
         this.patient_id = patient_id;
         this.record_date = record_date;

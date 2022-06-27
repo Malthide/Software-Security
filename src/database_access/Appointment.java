@@ -1,7 +1,7 @@
 /* Appointment.java
    Created by Christopher Walker.
    Created 25 June 2022.
-   Last modified 25 June 2022.
+   Last modified 26 June 2022.
    This file is an addition to the database_access package, most of which is defined in the file
    DatabaseAccess.java. It is mainly used by the class ApptSchedule, defined in the file ApptSchedule.java.
  */
@@ -22,7 +22,7 @@ public class Appointment {
     public Calendar date_time;
     public int no_show;    //contains 0 for not arrived or 1 for arrived
 
-    Appointment(int appt_id, int patient_id, int doctor_id, Calendar date_time, int no_show) {
+    public Appointment(int appt_id, int patient_id, int doctor_id, Calendar date_time, int no_show) {
         this.appt_id = appt_id;
         this.patient_id = patient_id;
         this.doctor_id = doctor_id;

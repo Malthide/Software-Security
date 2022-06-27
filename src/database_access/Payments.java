@@ -29,8 +29,8 @@ public class Payments {
     /* add_payment_record: Takes information about a payment transaction. Creates a new PaymentRecord object
             and appends it to payments_list.
      */
-    void add_payment_record(long reference_num, double amount, Calendar generated_date, int paid_check, Calendar paid_date, int payment_type) {
-        PaymentRecord pr = new PaymentRecord(reference_num, amount, generated_date, paid_check, paid_date, payment_type);
+    void add_payment_record(long reference_num, int patient_id, double amount, Calendar generated_date, int paid_check, Calendar paid_date, int payment_type) {
+        PaymentRecord pr = new PaymentRecord(reference_num, patient_id, amount, generated_date, paid_check, paid_date, payment_type);
         payments_list.add(pr);
         payments_list_length++;
     }

@@ -1,7 +1,7 @@
 /* DatabaseAccess.java
    Created by Christopher Walker.
    Created 14 June 2022.
-   Last modified 26 June 2022.
+   Last modified 27 June 2022.
    This package provides access functions to a specified SQL database connection. The methods provided here
    are designed for ease of database access and according to the design specifications given in the project
    description.
@@ -10,6 +10,30 @@
    study the documentation. Of special note: in the Calendar class, months are indexed beginning with 0 (thus
    January = 0, February = 1, etc.). Take note how I modify the month integer by one unit when converting to
    and from Calendar objects.
+
+   Where to find each method in this file, including function specifications:
+        verify_user_pass()          line   97
+        pull_user_info()            line  129
+        pull_doctor_id_list()       line  169
+        find_doctor_id()            line  218
+        find_doctor_name()          line  245
+        pull_doctor_schedule()      line  279
+        pull_patient_info()         line  330
+        find_patient_id()           line  433
+        update_patient_info()       line  487
+        pull_patient_ssn()          line  532
+        update_patient_ssn()        line  558
+        pull_appt_schedule()        line  581
+        add_appt_to_schedule()      line  641
+        change_no_show_status()     line  666
+        pull_chart_records()        line  692
+        add_new_chart_record()      line  774
+        update_chart_record()       line  852
+        pull_payment_records()      line  918
+        add_new_payment_record()    line  992
+        update_payment_record()     line 1052
+        find_drug_id()              line 1082
+        add_new_prescription()      line 1108
 
    Suggested methods for each use case (note that not all may be necessary depending on the implementation of
    the rest of the code):
@@ -38,8 +62,8 @@
             update_patient_ssn()
             pull_chart_records()
             change_no_show_status()
-            //add_new_payment_record()
-            //add_new_chart_record()
+            add_new_payment_record()
+            add_new_chart_record()
         Pay medical fee:
             pull_user_info()
             find_patient_id()
@@ -48,7 +72,7 @@
         Update vital signs:
             pull_user_info()
             pull_chart_records()
-            //add_new_chart_record()
+            add_new_chart_record()
             update_chart_record()
         Treat patient:
             pull_user_info()
@@ -57,9 +81,8 @@
             find_drug_id()
             add_new_prescription()
 
-   Development Update: At this time, the methods add_new_chart_record() and add_new_payment_record()
-        have not been fully implemented nor tested. All other methods have been tested. Please let me know
-        if you run into any issues.
+   Development Update: At this time, all methods have been implemented and tested. Please let me know
+        if you run into any issues or find any bugs that I missed.
  */
 
 
@@ -736,6 +759,7 @@ public class DatabaseAccess {
                 record_date.set(record_year, (record_month - 1), record_day);
 
                 p_chart.add_record(record_num, patient_id, record_date, temperature, pulse_rate, breathing_rate, blood_pressure_systolic, blood_pressure_diastolic, doctor_id);
+                rs.next();
             }
 
             return p_chart;
@@ -747,8 +771,81 @@ public class DatabaseAccess {
     }
 
 
-    static public void add_new_chart_record() {
-        //Takes a chart record and saves it to the database
+    /* add_new_chart_record: This method adds a new record to the table chart_records in the SQL database.
+            Takes a database Connection conn and a ChartRecord object cr. Verifies that cr.record_num is
+            not contained in the database; if it is, changes cr.record_num to a new value. Inserts a new
+            row into chart_records containing information from cr. Returns 0 if successful. Returns 1 if
+            an SQLException occurs.
+     */
+    static public int add_new_chart_record(Connection conn, ChartRecord cr) {
+        Random rand = new Random();
+        long record_num = cr.record_num;
+        int month = (cr.record_date.get(Calendar.MONTH)) + 1;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT doctor_visited FROM chart_records WHERE id_num = " + record_num;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() == true) {    //if an id_num matching the number in cr.record_num is found
+                while (true) {  //this will continue generating prescription id numbers until a unique one is found
+                    record_num = rand.nextInt(1000000000);    //this will generate values between 0 and 999999999 inclusive; work on ways to return larger random numbers
+                    query = "SELECT doctor_visited FROM chart_records WHERE id_num = " + record_num;
+                    rs = stmt.executeQuery(query);
+                    if (rs.next() != true) {
+                        cr.record_num = record_num;
+                        break;
+                    }
+                }
+            }
+
+            //Modify temperature to be in the correct string format
+            String temperature_str = Double.toString(cr.temperature);
+            int decimal_index = temperature_str.indexOf('.');
+            while (decimal_index < 3) {
+                temperature_str = "0" + temperature_str;
+                decimal_index++;
+            }
+            //Modify other values in cr to be in the correct string format
+            String pulse_rate_str = Integer.toString(cr.pulse_rate);
+            while (pulse_rate_str.length() < 3)
+                pulse_rate_str = "0" + pulse_rate_str;
+            String breathing_rate_str = Integer.toString(cr.breathing_rate);
+            while (breathing_rate_str.length() < 3)
+                breathing_rate_str = "0" + breathing_rate_str;
+            String bp_systolic_str = Integer.toString(cr.blood_pressure_systolic);
+            while (bp_systolic_str.length() < 4)
+                bp_systolic_str = "0" + bp_systolic_str;
+            String bp_diastolic_str = Integer.toString(cr.blood_pressure_diastolic);
+            while (bp_diastolic_str.length() < 4)
+                bp_diastolic_str = "0" + bp_diastolic_str;
+
+            byte[] enc_temp = new byte[16];
+            byte[] enc_pr = new byte[16];
+            byte[] enc_br = new byte[16];
+            byte[] enc_bps = new byte[16];
+            byte[] enc_bpd = new byte[16];
+
+            enc_temp = DatabaseSecurity.encrypt(temperature_str, 16);
+            String et = DatabaseSecurity.byte_array_to_hex_string(enc_temp);
+            enc_pr = DatabaseSecurity.encrypt(pulse_rate_str, 16);
+            String epr = DatabaseSecurity.byte_array_to_hex_string(enc_pr);
+            enc_br = DatabaseSecurity.encrypt(breathing_rate_str, 16);
+            String ebr = DatabaseSecurity.byte_array_to_hex_string(enc_br);
+            enc_bps = DatabaseSecurity.encrypt(bp_systolic_str, 16);
+            String ebps = DatabaseSecurity.byte_array_to_hex_string(enc_bps);
+            enc_bpd = DatabaseSecurity.encrypt(bp_diastolic_str, 16);
+            String ebpd = DatabaseSecurity.byte_array_to_hex_string(enc_bpd);
+
+            query = "INSERT INTO chart_records VALUES (" + record_num + ", " + cr.patient_id + ", " + cr.record_date.get(Calendar.DATE) +
+                ", " + month + ", " + cr.record_date.get(Calendar.YEAR) + ", '" + et + "', '" + epr + "', '" + ebr + "', '" +
+                ebps + "', '" + ebpd + "', " + cr.doctor_visited + ")";
+            stmt.executeQuery(query);
+
+            return 0;
+        } catch (Exception SQLException) {
+            return 1;
+        }
     }
 
 
@@ -877,7 +974,7 @@ public class DatabaseAccess {
                 if (paid_check == 1)
                     paid_date.set(paid_year, (paid_month - 1), paid_day);
 
-                payments.add_payment_record(reference_num, amount, generated_date, paid_check, paid_date, payment_type_id);
+                payments.add_payment_record(reference_num, patient_id, amount, generated_date, paid_check, paid_date, payment_type_id);
 
                 rs.next();
             }
@@ -886,14 +983,69 @@ public class DatabaseAccess {
         } catch (Exception SQLException) {
             generated_date = Calendar.getInstance();
             paid_date = Calendar.getInstance();
-            payments.add_payment_record(-1, -1.0, generated_date, -1, paid_date, -1);
+            payments.add_payment_record(-1, -1, -1.0, generated_date, -1, paid_date, -1);
             return payments;
         }
     }
 
 
-    static public void add_new_payment_record() {
-        //Takes a payment record object and stores its data in the database
+    /* add_new_payment_record: This method adds a new record to the table payments in the SQL database.
+            Takes a database Connection conn and a PaymentRecord object pr. Verifies that pr.reference_num
+            is not contained in the database; if it is, changes pr.reference_num to a new value. Inserts a
+            new row into payments containing information from pr. Returns 0 if successful. Returns 1 if
+            an SQLException occurs.
+     */
+    static public int add_new_payment_record(Connection conn, PaymentRecord pr) {
+        Random rand = new Random();
+        long reference_num = pr.reference_num;
+        int generated_month = (pr.generated_date.get(Calendar.MONTH)) + 1;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT generated_year FROM payments WHERE reference_num = " + reference_num;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() == true) {    //if an id_num matching the number in cr.record_num is found
+                while (true) {  //this will continue generating prescription id numbers until a unique one is found
+                    reference_num = rand.nextInt(1000000000);    //this will generate values between 0 and 999999999 inclusive; work on ways to return larger random numbers
+                    query = "SELECT generated_year FROM payments WHERE reference_num = " + reference_num;
+                    rs = stmt.executeQuery(query);
+                    if (rs.next() != true) {
+                        pr.reference_num = reference_num;
+                        break;
+                    }
+                }
+            }
+
+            //Modify pr.amount to be in the correct string format
+            String amount_str = Double.toString(pr.amount);
+            int decimal_index = amount_str.indexOf('.');
+            while (decimal_index < 8) {
+                amount_str = "0" + amount_str;
+                decimal_index++;
+            }
+
+            byte[] enc_amount = new byte[16];
+            enc_amount = DatabaseSecurity.encrypt(amount_str, 16);
+            String ea = DatabaseSecurity.byte_array_to_hex_string(enc_amount);
+
+            if (pr.paid_check == 1) {
+                int paid_month = (pr.paid_date.get(Calendar.MONTH)) + 1;
+                query = "INSERT INTO payments VALUES (" + reference_num + ", " + pr.patient_id + ", '" + ea + "', " +
+                        pr.generated_date.get(Calendar.DATE) + ", " + generated_month + ", " + pr.generated_date.get(Calendar.YEAR) +
+                        ", " + pr.paid_check + ", " + pr.paid_date.get(Calendar.DATE) + ", " + paid_month + ", " +
+                        pr.paid_date.get(Calendar.YEAR) + ", " + pr.payment_type + ")";
+            } else {
+                query = "INSERT INTO payments VALUES (" + reference_num + ", " + pr.patient_id + ", '" + ea + "', " +
+                        pr.generated_date.get(Calendar.DATE) + ", " + generated_month + ", " + pr.generated_date.get(Calendar.YEAR) +
+                        ", " + pr.paid_check + ", '', '', '', '')";
+            }
+            stmt.executeQuery(query);
+
+            return 0;
+        } catch (Exception SQLException) {
+            return 1;
+        }
     }
 
 
