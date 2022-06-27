@@ -185,6 +185,15 @@ public class TestMainForDatabase {
                 System.out.println("Appointment scheduling failed.");
             System.out.println();
 
+            //Test DatabaseAccess.change_no_show_status() for appointment 2
+            System.out.println("Test of DatabaseAccess.change_no_show_status()");
+            int success_no_show = DatabaseAccess.change_no_show_status(conn, 2, 1);
+            if (success_no_show == 0)
+                System.out.println("No show status successful updated.");
+            else
+                System.out.println("No show status update failed.");
+            System.out.println();
+
             //Test DatabaseAccess.pull_chart_records() for patient Jia Chen, whose info is saved above in the object p_info
             System.out.println("Test of DatabaseAccess.pull_chart_records()");
             PatientChart p_chart = DatabaseAccess.pull_chart_records(conn, p_info.id_num);
@@ -215,7 +224,18 @@ public class TestMainForDatabase {
             }
             System.out.println();
 
-            //Test pull_payment_records() for patient Jia Chen, whose info is saved above in the object p_info
+            //Test DatabaseAccess.update_chart_record() for a chart record of patient Jia Chen, found in p_chart above
+            System.out.println("Test of DatabaseAccess.update_chart_record()");
+            ChartRecord c_record = litr4.previous();
+            c_record.pulse_rate = 82;
+            int success_update_c_record = DatabaseAccess.update_chart_record(conn, c_record);
+            if (success_update_c_record == 0)
+                System.out.println("Chart record successfully updated.");
+            else
+                System.out.println("Chart record update failed.");
+            System.out.println();
+
+            //Test DatabaseAccess.pull_payment_records() for patient Jia Chen, whose info is saved above in the object p_info
             System.out.println("Test of DatabaseAccess.pull_payment_records()");
             Payments payments = DatabaseAccess.pull_payment_records(conn, p_info.id_num);
             System.out.println("Patient ID: " + payments.patient_id);
@@ -245,6 +265,19 @@ public class TestMainForDatabase {
                     System.out.println("Payment type ID: " + litr5.next().payment_type);
                 }
             }
+            System.out.println();
+
+            //Test DatabaseAccess.update_payment_record() using a PaymentRecord object from the Payments object payments created above
+            System.out.println("Test of DatabaseAccess.update_payment_record()");
+            PaymentRecord pay_record = litr5.previous();
+            pay_record.paid_check = 1;
+            pay_record.paid_date.set(2022, 6, 1);
+            pay_record.payment_type = 0;
+            int success_update_p_record = DatabaseAccess.update_payment_record(conn, pay_record);
+            if (success_update_p_record == 0)
+                System.out.println("Payment record update successful.");
+            else
+                System.out.println("Payment record update failed.");
             System.out.println();
 
             //Test DatabaseAccess.find_drug_id()

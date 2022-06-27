@@ -24,6 +24,9 @@
             pull_patient_info()
             pull_appt_schedule()
             add_appt_to_schedule()
+        Clear no-show appointment:
+            find_patient_id()
+            change_no_show_status()
         Check-in patient:
             pull_user_info()
             find_doctor_name()
@@ -34,28 +37,29 @@
             update_patient_info()
             update_patient_ssn()
             pull_chart_records()
+            change_no_show_status()
             //add_new_payment_record()
             //add_new_chart_record()
         Pay medical fee:
             pull_user_info()
             find_patient_id()
             pull_payment_records()
-            //update_payment_record()
+            update_payment_record()
         Update vital signs:
             pull_user_info()
             pull_chart_records()
             //add_new_chart_record()
-            //update_chart_record()
+            update_chart_record()
         Treat patient:
             pull_user_info()
             pull_chart_records()
-            //update_chart_record()
+            update_chart_record()
             find_drug_id()
             add_new_prescription()
 
-   Development Update: At this time, the methods add_new_chart_record(), update_chart_record(),
-        add_new_payment_record(), and update_payment_record(), have not been fully implemented nor tested.
-        All other methods have been tested. Please let me know if you run into any issues.
+   Development Update: At this time, the methods add_new_chart_record() and add_new_payment_record()
+        have not been fully implemented nor tested. All other methods have been tested. Please let me know
+        if you run into any issues.
  */
 
 
@@ -636,6 +640,32 @@ public class DatabaseAccess {
     }
 
 
+    /* change_no_show_status(): Takes a database Connection conn, an appt_id number, and no_show. Appt_id
+            is the unique identifier associated with each appointment; in an Appointment object, it is
+            stored in the variable appt_id. No_show should equal 0 if the patient has not arrived or 1 if
+            they have arrived. Updates the database with the new no_show value. Returns 0 if successful.
+            Returns 3 if no appointment with the given appt_id was found in the database. If an
+            SQLException occurs, returns 1.
+     */
+    static public int change_no_show_status(Connection conn, int appt_id, int no_show) {
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT doctor_id FROM appointments WHERE id_num = " + appt_id;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true)
+                return 3;
+
+            query = "UPDATE appointments SET no_show = " + no_show + " WHERE id_num = " + appt_id;
+            stmt.executeQuery(query);
+
+            return 0;
+        } catch (Exception SQLException) {
+            return 1;
+        }
+    }
+
+
     /* pull_chart_records: Takes a database Connection conn and a patient_id. Returns a PatientChart object,
             defined in PatientChart.java, containing a list of ChartRecord objects that correspond to
             patient_id. If no records are found for the patient, returns a PatientChart object with an
@@ -722,8 +752,69 @@ public class DatabaseAccess {
     }
 
 
-    static public void update_chart_record() {
-        //Takes a chart record object and replaces its old info in the database
+    /* update_chart_record: This method updates a chart record that already exists in the SQL database.
+            Takes a database Connection conn and a ChartRecord object cr. Overwrites the previous
+            information in the database associated with cr.record_num with the current information in cr.
+            Returns 0 if overwrite is successful. If a record with id_num equal to cr.record_num is not
+            found in the database, returns 3. If an SQLException occurs, returns 1.
+     */
+    static public int update_chart_record(Connection conn, ChartRecord cr) {
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT doctor_visited FROM chart_records WHERE id_num = " + cr.record_num;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true)
+                return 3;
+
+            //Modify temperature to be in the correct string format
+            String temperature_str = Double.toString(cr.temperature);
+            int decimal_index = temperature_str.indexOf('.');
+            while (decimal_index < 3) {
+                temperature_str = "0" + temperature_str;
+                decimal_index++;
+            }
+            //Modify other values in cr to be in the correct string format
+            String pulse_rate_str = Integer.toString(cr.pulse_rate);
+            while (pulse_rate_str.length() < 3)
+                pulse_rate_str = "0" + pulse_rate_str;
+            String breathing_rate_str = Integer.toString(cr.breathing_rate);
+            while (breathing_rate_str.length() < 3)
+                breathing_rate_str = "0" + breathing_rate_str;
+            String bp_systolic_str = Integer.toString(cr.blood_pressure_systolic);
+            while (bp_systolic_str.length() < 4)
+                bp_systolic_str = "0" + bp_systolic_str;
+            String bp_diastolic_str = Integer.toString(cr.blood_pressure_diastolic);
+            while (bp_diastolic_str.length() < 4)
+                bp_diastolic_str = "0" + bp_diastolic_str;
+
+            byte[] enc_temp = new byte[16];
+            byte[] enc_pr = new byte[16];
+            byte[] enc_br = new byte[16];
+            byte[] enc_bps = new byte[16];
+            byte[] enc_bpd = new byte[16];
+
+            enc_temp = DatabaseSecurity.encrypt(temperature_str, 16);
+            String et = DatabaseSecurity.byte_array_to_hex_string(enc_temp);
+            enc_pr = DatabaseSecurity.encrypt(pulse_rate_str, 16);
+            String epr = DatabaseSecurity.byte_array_to_hex_string(enc_pr);
+            enc_br = DatabaseSecurity.encrypt(breathing_rate_str, 16);
+            String ebr = DatabaseSecurity.byte_array_to_hex_string(enc_br);
+            enc_bps = DatabaseSecurity.encrypt(bp_systolic_str, 16);
+            String ebps = DatabaseSecurity.byte_array_to_hex_string(enc_bps);
+            enc_bpd = DatabaseSecurity.encrypt(bp_diastolic_str, 16);
+            String ebpd = DatabaseSecurity.byte_array_to_hex_string(enc_bpd);
+
+            query = "UPDATE chart_records SET temperature = '" + et + "', pulse_rate = '" + epr + "', breathing_rate = '" +
+                ebr + "', blood_pressure_systolic = '" + ebps + "', blood_pressure_diastolic = '" + ebpd +
+                "', doctor_visited = " + cr.doctor_visited + " WHERE id_num = " + cr.record_num;
+
+            stmt.executeQuery(query);
+
+            return 0;
+        } catch (Exception SQLException) {
+            return 1;
+        }
     }
 
 
@@ -756,9 +847,8 @@ public class DatabaseAccess {
             String query = "SELECT * FROM payments WHERE patient_id = " + patient_id;
             ResultSet rs = stmt.executeQuery(query);
 
-            if (rs.next() != true) {
+            if (rs.next() != true)
                 return payments;
-            }
 
             rs.last();
             int num_results = rs.getRow(); //This determines how many rows are in rs
@@ -807,8 +897,33 @@ public class DatabaseAccess {
     }
 
 
-    static public void update_payment_record() {
-        //Takes a payment record object and replaces its old data in the database
+    /* update_payment_record: This method updates a payment record that already exists in the SQL database.
+            Takes a database Connection conn and a PaymentRecord object pr. Overwrites the previous
+            information in the database associated with pr.reference_num with the current information in pr.
+            Returns 0 if overwrite is successful. If a record with reference_num equal to cr.reference_num
+            is not found in the database, returns 3. If an SQLException occurs, returns 1.
+     */
+    static public int update_payment_record(Connection conn, PaymentRecord pr) {
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT generated_year FROM payments WHERE reference_num = " + pr.reference_num;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true)
+                return 3;
+
+            int paid_day = pr.paid_date.get(Calendar.DATE);
+            int paid_month = (pr.paid_date.get(Calendar.MONTH)) + 1;
+            int paid_year = pr.paid_date.get(Calendar.YEAR);
+
+            query = "UPDATE payments SET paid_check = " + pr.paid_check + ", paid_day = " + paid_day + ", paid_month = " + paid_month +
+                ", paid_year = " + paid_year + ", payment_type = " + pr.payment_type + " WHERE reference_num = " + pr.reference_num;
+            stmt.executeQuery(query);
+
+            return 0;
+        } catch (Exception SQLException) {
+            return 1;
+        }
     }
 
 
