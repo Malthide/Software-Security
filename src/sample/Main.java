@@ -261,6 +261,39 @@ public class Main extends Application {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////Check in patient use case///////////////////
         else if(newStage == 4){
+            Label patientNameLabel = new Label("Enter Patient Name:");
+            GridPane.setConstraints(patientNameLabel, 10, 3);
+            TextField patientNameText = new TextField();
+            patientNameText.setMinSize(100, 45);
+            GridPane.setConstraints(patientNameText, 10, 4);
+
+            Label patientDOBLabel = new Label("Enter Patient DOB:");
+            GridPane.setConstraints(patientDOBLabel, 10, 5);
+            TextField patientDOBText = new TextField();
+            patientDOBText.setMinSize(100, 45);
+            GridPane.setConstraints(patientDOBText, 10, 6);
+
+            Button getPatientInfoButton = new Button("Get Patient Info");
+            getPatientInfoButton.setStyle("-fx-background-color: MediumSeaGreen");
+            getPatientInfoButton.setMinSize(60, 45);
+            GridPane.setConstraints(getPatientInfoButton, 10, 7);
+            getPatientInfoButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        changeStage(primaryStage, 5);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        }
+        ////////////////////////////////////////////////////////Once patient name and DOB are entered the system pulls up their appointment info.
+        else if(newStage == 5){
+            Label patientNameLabel = new Label("Patient Name Goes Here");
+            GridPane.setConstraints(patientNameLabel, 5, 3);
+
 
         }
 
