@@ -19,6 +19,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+
+class tempVars{
+    int result;
+
+}
 public class Main extends Application {
 
     public void run() {
@@ -84,7 +89,7 @@ public class Main extends Application {
             stage.show();
 
         }//END OF NEW STAGE = 0
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
         else if(newStage == 1){//Display textfield to enter doctor name
@@ -184,6 +189,55 @@ public class Main extends Application {
             stage.show();
 
         }
+ /////////////////////////////////////////////////////////////STAGE FOR IF THE LOG IN FAILS/////////////////////////////////////////////////////////////////////////////
+        else if(newStage == 3){
+            stage.setTitle("Health-Care System");
+            GridPane grid = new GridPane();
+            grid.setPadding(new Insets(25, 25, 25, 25));
+            grid.setVgap(18);
+            grid.setHgap(10);
+
+
+////////////////////////////////////////////////////////////////////////CREATE TEXTFIELD FOR NAME
+            Label nameLabel = new Label("Name:");
+            GridPane.setConstraints(nameLabel, 14, 4);
+            TextField nameText = new TextField();
+            nameText.setMinSize(100, 45);
+            GridPane.setConstraints(nameText, 15, 4);
+
+////////////////////////////////////////////////////////////////////////CREATE TEXTFIELD FOR ID
+            Label IDLabel = new Label("ID:");
+            GridPane.setConstraints(IDLabel, 14, 6);
+            TextField IDText = new TextField();
+            IDText.setMinSize(100, 45);
+            GridPane.setConstraints(IDText, 15, 6);
+
+/////////////////////////////////////////////////////////////////////////LOG IN BUTTON
+            Button logInButton = new Button("LOG IN");
+            logInButton.setStyle("-fx-background-color: MediumSeaGreen");
+            logInButton.setMinSize(60, 45);
+            GridPane.setConstraints(logInButton, 15, 8);
+            logInButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    String nameTemp = nameText.getText();
+                    String IDTemp = IDText.getText();
+                    try {
+                        logInButton(nameTemp, IDTemp);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+
+                }
+            });
+            Label logIn = new Label("LOG IN FAILED - PLEASE RE-ENTER LOGIN");
+            GridPane.setConstraints(logIn, 15, 2);
+
+            grid.getChildren().addAll(logInButton, logIn, nameText, IDText, nameLabel, IDLabel);
+            Scene scene = new Scene(grid, 500, 500);
+            stage.setScene(scene);
+            stage.show();
+        }
 
 
 
@@ -200,23 +254,31 @@ public class Main extends Application {
         String database_password = "YellowGreen27";
        // Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
-        //DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp);
 
-        try {
-            changeStage(primaryStage,1);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        ///////////////////////////////////Function needs to do the following -->
+        /*
+        if((DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp)) == 1){
+            try {
+                changeStage(primaryStage, 2);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
+        else {
+
+            try {
+                changeStage(primaryStage, 2);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+         */
 
     }
 
     public void doctorNameButton(String doctorNameTemp){//get Doctors available date and time
 
-        try {
-            changeStage(primaryStage,2);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
 
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
