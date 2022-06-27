@@ -169,9 +169,11 @@ public class Main extends Application {
             makeAppointmentButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    String Temp = makeAppointmentButton.getText();
+                    String nameTemp = patientNameText.getText();
+                    String dateTemp = enterDateText.getText();
+                    String timeTemp = enterTimeText.getText();
 
-                    storeAppointment(Temp);
+                    storeAppointment(nameTemp,dateTemp,timeTemp);
 
                 }
             });
@@ -217,7 +219,8 @@ public class Main extends Application {
         }
 
     }
-    public void storeAppointment(String temp){
+    /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
+    public void storeAppointment(String nameTemp,String dateTemp,String timeTemp){
 
     }
 
