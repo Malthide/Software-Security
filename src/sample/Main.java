@@ -123,7 +123,26 @@ public class Main extends Application {
 
                 }
             });
-            grid.getChildren().addAll(logInLabel,nameLabel,doctorNameText,enterDoctorNameButton);
+
+            Label checkInLabel = new Label("Check In Patient:");
+            GridPane.setConstraints(checkInLabel, 15, 9);
+            Button checkInButton = new Button("Check In");
+            checkInButton.setStyle("-fx-background-color: MediumSeaGreen");
+            checkInButton.setMinSize(60, 45);
+            GridPane.setConstraints(checkInButton, 15, 10);
+            checkInButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+
+                    try {
+                        changeStage(primaryStage, 4);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            grid.getChildren().addAll(logInLabel,nameLabel,doctorNameText,enterDoctorNameButton,checkInLabel,checkInButton);
             Scene scene = new Scene(grid, 700, 700);
             stage.setScene(scene);
             stage.show();
@@ -238,6 +257,12 @@ public class Main extends Application {
             stage.setScene(scene);
             stage.show();
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////Check in patient use case///////////////////
+        else if(newStage == 4){
+
+        }
 
 
 
@@ -254,7 +279,11 @@ public class Main extends Application {
         String database_password = "YellowGreen27";
        // Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
-
+        try {
+            changeStage(primaryStage, 1);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         ///////////////////////////////////Function needs to do the following -->
         /*
         if((DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp)) == 1){
@@ -267,7 +296,7 @@ public class Main extends Application {
         else {
 
             try {
-                changeStage(primaryStage, 2);
+                changeStage(primaryStage, 3);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -278,11 +307,28 @@ public class Main extends Application {
     }
 
     public void doctorNameButton(String doctorNameTemp){//get Doctors available date and time
-
+        try {
+            changeStage(primaryStage, 2);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
     public void storeAppointment(String nameTemp,String dateTemp,String timeTemp){
+        try {
+            changeStage(primaryStage, 1);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void checkInPatient(){
+        try {
+            changeStage(primaryStage, 4);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
