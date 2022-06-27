@@ -2,6 +2,10 @@
    Created by Christopher Walker.
    Created 25 June 2022.
    Last modified 25 June 2022.
+   This file is an addition to the database_access package, most of which is defined in the file
+   DatabaseAccess.java. The class ApptSchedule defines an entity meant to be returned by the method
+   pull_appt_schedule. This entity could be used elsewhere in the program, but its main purpose is to be a
+   collection of information from the database about a scheduled appointments.
  */
 
 
@@ -10,6 +14,7 @@ package database_access;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+
 
 public class ApptSchedule {
     public ArrayList<Appointment> appt_list = new ArrayList<Appointment>();
