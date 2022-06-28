@@ -32,7 +32,9 @@ Steps to Run
         
   2. Run the main.java class
        A GUI should pop up asking for a login
-     1. Names for Staff, Doctors, and Nurses can be seen in the database can be seen in the PopulateDatabase.java file 
+     1. Names for Staff, Doctors, and Nurses currently in the database can be seen in the PopulateDatabase.java file
+     
+     To test the login, choose a name from the database, or enter an incorrect user name or password for error testing. 
 
 
 
