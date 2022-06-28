@@ -13,6 +13,8 @@ Preliminary Steps:
   2. Install a database manager, we have been using Oracle Database 21C 
       https://www.oracle.com/in/database/technologies/xe-downloads.html
       
+      Make sure to run the oracle database manager setup as an administrator on Windows.
+      
       <i>A supplementary guide for setting up Oracle Database Manager</i>
        https://www.oracle.com/in/database/technologies/appdev/xe/quickstart.html
        
@@ -31,3 +33,6 @@ Steps to Run
   2. Run the main.java class
        A GUI should pop up asking for a login
      1. Names for Staff, Doctors, and Nurses can be seen in the database can be seen in the PopulateDatabase.java file 
+
+
+
