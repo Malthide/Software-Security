@@ -483,8 +483,8 @@ public class Main extends Application {
         newCalendar.set(Integer.parseInt(yearTemp),Integer.parseInt(monthTemp),Integer.parseInt(dayTemp),Integer.parseInt(hourTemp), Integer.parseInt(minTemp));
         /////////////////////////////////////////////////////
 
-        //int my_patient_id = DatabaseAccess.find_patient_id(conn,firstNameTemp,lastNameTemp);
-        //DatabaseAccess.add_appt_to_schedule(conn,appt_schedule,my_patient_id,doctorID,newCalendar);
+        int my_patient_id = DatabaseAccess.find_patient_id_from_name_only(conn,firstNameTemp,lastNameTemp);
+        DatabaseAccess.add_appt_to_schedule(conn,appt_schedule,my_patient_id,doctorID,newCalendar);
 
          /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         try {
