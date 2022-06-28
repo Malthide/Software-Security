@@ -123,7 +123,7 @@ public class Main extends Application {
 
                 }
             });
-
+/////////////////////////////////////////////////////////////////////////////Check in Patient Button
             Label checkInLabel = new Label("Check In Patient:");
             GridPane.setConstraints(checkInLabel, 15, 9);
             Button checkInButton = new Button("Check In");
@@ -142,7 +142,26 @@ public class Main extends Application {
 
                 }
             });
-            grid.getChildren().addAll(logInLabel,nameLabel,doctorNameText,enterDoctorNameButton,checkInLabel,checkInButton);
+ /////////////////////////////////////////////////////////////////////////////Log Out Button
+            Button logOutButton = new Button("LOG OUT");
+            logOutButton.setStyle("-fx-background-color: MediumSeaGreen");
+            logOutButton.setMinSize(60, 45);
+            GridPane.setConstraints(logOutButton, 15, 12);
+            logOutButton.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+
+                    try {
+                        changeStage(primaryStage, 0);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            //////////////////////////////////////////////////////////////////////////////////
+
+            grid.getChildren().addAll(logInLabel,nameLabel,doctorNameText,enterDoctorNameButton,checkInLabel,checkInButton,logOutButton);
             Scene scene = new Scene(grid, 700, 700);
             stage.setScene(scene);
             stage.show();
@@ -261,6 +280,12 @@ public class Main extends Application {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////Check in patient use case///////////////////
         else if(newStage == 4){
+            stage.setTitle("Health-Care System");
+            GridPane grid = new GridPane();
+            grid.setPadding(new Insets(25, 25, 25, 25));
+            grid.setVgap(18);
+            grid.setHgap(10);
+
             Label patientNameLabel = new Label("Enter Patient Name:");
             GridPane.setConstraints(patientNameLabel, 10, 3);
             TextField patientNameText = new TextField();
@@ -288,9 +313,19 @@ public class Main extends Application {
 
                 }
             });
+            grid.getChildren().addAll(patientNameLabel,patientNameText,patientDOBLabel,patientDOBText,getPatientInfoButton);
+            Scene scene = new Scene(grid, 700, 700);
+            stage.setScene(scene);
+            stage.show();
         }
         ////////////////////////////////////////////////////////Once patient name and DOB are entered the system pulls up their appointment info.
         else if(newStage == 5){
+            stage.setTitle("Health-Care System");
+            GridPane grid = new GridPane();
+            grid.setPadding(new Insets(25, 25, 25, 25));
+            grid.setVgap(18);
+            grid.setHgap(10);
+
             Label patientNameLabel = new Label("Patient Name Goes Here");
             GridPane.setConstraints(patientNameLabel, 5, 3);
 
@@ -310,18 +345,17 @@ public class Main extends Application {
         String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
         String database_username = "system";
         String database_password = "YellowGreen27";
-       // Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
+        Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
         try {
             changeStage(primaryStage, 1);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        ///////////////////////////////////Function needs to do the following -->
-        /*
+
         if((DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp)) == 1){
             try {
-                changeStage(primaryStage, 2);
+                changeStage(primaryStage, 1);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -335,7 +369,7 @@ public class Main extends Application {
             }
         }
 
-         */
+
 
     }
 
