@@ -317,6 +317,18 @@ public class TestMainForDatabase {
                 System.out.println("Prescription successfully added.");
             else
                 System.out.println("Prescription addition to database failed.");
+            System.out.println();
+
+            //Test DatabaseAccess.pull_doctor_schedule_as_str_dates
+            System.out.println("Test of DatabaseAccess.pull_doctor_schedule_as_str_dates()");
+            String doc_dates = DatabaseAccess.pull_doctor_schedule_as_str_dates(conn, 9427);
+            System.out.println(doc_dates);
+            System.out.println();
+
+            //Test DatabaseAccess.pull_doctor_schedule_as_str_times
+            System.out.println("Test of DatabaseAccess.pull_doctor_schedule_as_str_times()");
+            String doc_times = DatabaseAccess.pull_doctor_schedule_as_str_times(conn, 9427);
+            System.out.println(doc_times);
 
             conn.close();
         } catch (Exception SQLException) {

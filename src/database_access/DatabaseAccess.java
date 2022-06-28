@@ -1144,4 +1144,92 @@ public class DatabaseAccess {
             return 1;
         }
     }
+
+
+    /* pull_doctor_schedule_as_str_dates: Takes a database connection conn and a doctor_id. Returns days and
+            months from the doctor_schedule table of the database as a comma-separated list in string format.
+     */
+    static public String pull_doctor_schedule_as_str_dates(Connection conn, int doctor_id) {
+        int schedule_length;
+        int day;
+        int month;
+        String out_str = "";
+
+        try {
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String query = "SELECT * FROM doctor_schedule WHERE doctor_id = " + doctor_id;
+            ResultSet rs = stmt.executeQuery(query); //rs now contains all rows that correspond to the given doctor_id
+
+            rs.last();
+            schedule_length = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            for (int i = 0; i < schedule_length; i++) {
+                day = rs.getInt("s_day");
+                month = rs.getInt("s_month");
+
+                if (i != 0) {
+                    out_str = out_str + ", ";
+                }
+                out_str = out_str + month + "/" + day;
+
+                rs.next();
+            }
+
+            return out_str;
+        } catch (Exception SQLException) {
+            System.out.println(SQLException);
+            return "An error occurred.";
+        }
+    }
+
+
+    /* pull_doctor_schedule_as_str_times: Takes a database connection conn and a doctor_id. Returns start
+            times and end times from the doctor_schedule table of the database as a comma-separated list in
+            string format.
+     */
+    static public String pull_doctor_schedule_as_str_times(Connection conn, int doctor_id) {
+        int schedule_length;
+        int start_hour;
+        int start_minute;
+        int end_hour;
+        int end_minute;
+        String out_str = "";
+
+        try {
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String query = "SELECT * FROM doctor_schedule WHERE doctor_id = " + doctor_id;
+            ResultSet rs = stmt.executeQuery(query); //rs now contains all rows that correspond to the given doctor_id
+
+            rs.last();
+            schedule_length = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            for (int i = 0; i < schedule_length; i++) {
+                start_hour = rs.getInt("start_hour");
+                start_minute = rs.getInt("start_minute");
+                end_hour = rs.getInt("end_hour");
+                end_minute = rs.getInt("end_minute");
+
+                String start_minute_str = Integer.toString(start_minute);
+                if (start_minute_str.length() < 2)
+                    start_minute_str = "0" + start_minute_str;
+                String end_minute_str = Integer.toString(end_minute);
+                if (end_minute_str.length() < 2)
+                    end_minute_str = "0" + end_minute_str;
+
+                if (i != 0) {
+                    out_str = out_str + ", ";
+                }
+                out_str = out_str + start_hour + ":" + start_minute_str + "-" + end_hour + ":" + end_minute_str;
+
+                rs.next();
+            }
+
+            return out_str;
+        } catch (Exception SQLException) {
+            System.out.println(SQLException);
+            return "An exception occurred.";
+        }
+    }
 }
