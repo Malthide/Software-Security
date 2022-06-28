@@ -1,6 +1,8 @@
 package sample;
 
+import database_access.ApptSchedule;
 import database_access.DatabaseAccess;
+import database_access.DoctorSchedule;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -18,13 +21,18 @@ import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Calendar;
 
 
 class tempVars{
-    int result;
+    String times;
+    String dates;
 
 }
 public class Main extends Application {
+    String times;
+    String dates;
+    int doctorID;
 
     public void run() {
         launch();
@@ -38,6 +46,8 @@ public class Main extends Application {
     }
 
     public void changeStage(Stage stage, int newStage) throws FileNotFoundException {
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////LOG IN PAGE//////////////////////////////////////////////////////////////////
         if (newStage == 0) {
             stage.setTitle("Health-Care System");
             GridPane grid = new GridPane();
@@ -56,7 +66,7 @@ public class Main extends Application {
 ////////////////////////////////////////////////////////////////////////CREATE TEXTFIELD FOR ID
             Label IDLabel = new Label("ID:");
             GridPane.setConstraints(IDLabel, 14, 6);
-            TextField IDText = new TextField();
+            PasswordField IDText = new PasswordField();
             IDText.setMinSize(100, 45);
             GridPane.setConstraints(IDText, 15, 6);
 
@@ -90,7 +100,7 @@ public class Main extends Application {
 
         }//END OF NEW STAGE = 0
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/////////////////////////////////////////////////////////////////ENTER THE DOCTORS FIRST AND LAST NAME////////////////////////////////////////////////////////////////////////////////////////////////
 
         else if(newStage == 1){//Display textfield to enter doctor name
             stage.setTitle("Health-Care System");
@@ -177,6 +187,7 @@ public class Main extends Application {
             stage.show();
 
         }
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////STAGE 2 --> Make Appointment Use Case/////////////////////////////////////////////////////
         else if(newStage == 2){ //Enter Patient name, date and time
             stage.setTitle("Health-Care System");
@@ -188,31 +199,55 @@ public class Main extends Application {
             Label nameDateTimeLabel = new Label("Enter Name, Date, and Time");
             GridPane.setConstraints(nameDateTimeLabel, 10, 2);
             ////////////////////////////////////////////////////////////////////////Display doctor available date and time
-            Label availableDateLabel = new Label("Display available dates");
-            GridPane.setConstraints(availableDateLabel, 5, 3);
-            Label availableTimeLabel = new Label("Display available times");
-            GridPane.setConstraints(availableTimeLabel, 5, 4);
+            Label availableDateLabel = new Label("Available Dates are: "+ dates);
+            GridPane.setConstraints(availableDateLabel, 1, 3);
+            Label availableTimeLabel = new Label("Available times are: "+ times);
+            GridPane.setConstraints(availableTimeLabel, 1, 4);
 //////////////////////////////////////////////////////////////////////////////////////Enter the patients name
-            Label patientNameLabel = new Label("Enter Patient Name:");
-            GridPane.setConstraints(patientNameLabel, 10, 3);
-            TextField patientNameText = new TextField();
-            patientNameText.setMinSize(100, 45);
-            GridPane.setConstraints(patientNameText, 10, 4);
+            Label patientFirstNameLabel = new Label("Enter Patient First Name:");
+            GridPane.setConstraints(patientFirstNameLabel, 10, 3);
+            TextField patientFirstNameText = new TextField();
+            patientFirstNameText.setMinSize(100, 45);
+            GridPane.setConstraints(patientFirstNameText, 10, 4);
 
-//////////////////////////////////////////////////////////////////////////////////////Enter the day --> Monday,Tuesday,Wednesday,Thursday,Friday
-            Label selectDateLabel = new Label("Select Date(M,T,W,TH,F):");
-            GridPane.setConstraints(selectDateLabel, 10, 5);
-            TextField enterDateText = new TextField();
-            enterDateText.setMinSize(100, 45);
-            GridPane.setConstraints(enterDateText, 10, 6);
+            Label patientLastNameLabel = new Label("Enter Patient Last Name:");
+            GridPane.setConstraints(patientLastNameLabel, 12, 3);
+            TextField patientLastNameText = new TextField();
+            patientLastNameText.setMinSize(100, 45);
+            GridPane.setConstraints(patientLastNameText, 12, 4);
 
-///////////////////////////////////////////////////////////////////////////////////////Enter the time
+//////////////////////////////////////////////////////////////////////////////////////
+            Label selectDayLabel = new Label("Select Day:");
+            GridPane.setConstraints(selectDayLabel, 10, 5);
+            TextField enterDayText = new TextField();
+            enterDayText.setMinSize(100, 45);
+            GridPane.setConstraints(enterDayText, 10, 6);
+            ///////////////////////////////////////////////////////////////
+            Label selectMonthLabel = new Label("Select Month:");
+            GridPane.setConstraints(selectMonthLabel, 12, 5);
+            TextField enterMonthText = new TextField();
+            enterMonthText.setMinSize(100, 45);
+            GridPane.setConstraints(enterMonthText, 12, 6);
+/////////////////////////////////////////////////////////////////////////////
+            Label selectYearLabel = new Label("Select Year:");
+            GridPane.setConstraints(selectYearLabel, 14, 5);
+            TextField enterYearText = new TextField();
+            enterYearText.setMinSize(100, 45);
+            GridPane.setConstraints(enterYearText, 14, 6);
 
-            Label selectTimeLabel = new Label("Select Time:");
-            GridPane.setConstraints(selectTimeLabel, 10, 7);
-            TextField enterTimeText = new TextField();
-            enterTimeText.setMinSize(100, 45);
-            GridPane.setConstraints(enterTimeText, 10, 8);
+///////////////////////////////////////////////////////////////////////////////////////Enter the time Hours then min.
+
+            Label selectHourLabel = new Label("Select Hour:");
+            GridPane.setConstraints(selectHourLabel, 10, 7);
+            TextField enterHourText = new TextField();
+            enterHourText.setMinSize(100, 45);
+            GridPane.setConstraints(enterHourText, 10, 8);
+
+            Label selectMinLabel = new Label("Select Min:");
+            GridPane.setConstraints(selectMinLabel, 12, 7);
+            TextField enterMinText = new TextField();
+            enterMinText.setMinSize(100, 45);
+            GridPane.setConstraints(enterMinText, 12, 8);
 
 /////////////////////////////////////////////////////////////////////////////////////////////Button
             Button makeAppointmentButton = new Button("Make Appointment");
@@ -222,21 +257,30 @@ public class Main extends Application {
             makeAppointmentButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    String nameTemp = patientNameText.getText();
-                    String dateTemp = enterDateText.getText();
-                    String timeTemp = enterTimeText.getText();
+                    String firstNameTemp = patientFirstNameText.getText();
+                    String lastNameTemp = patientLastNameText.getText();
+                    String dayTemp = enterDayText.getText();
+                    String monthTemp = enterMonthText.getText();
+                    String yearTemp = enterYearText.getText();
+                    String hourTemp = enterHourText.getText();
+                    String minTemp = enterMinText.getText();
 
-                    storeAppointment(nameTemp,dateTemp,timeTemp);
+                    try {
+                        storeAppointment(firstNameTemp,lastNameTemp,dayTemp,monthTemp,yearTemp,hourTemp, minTemp);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
 
                 }
             });
 ////////////////////////////////////////////////////////////////////////////////////////////
-            grid.getChildren().addAll(nameDateTimeLabel, patientNameLabel, patientNameText, selectDateLabel, enterDateText,selectTimeLabel,enterTimeText,makeAppointmentButton,availableDateLabel, availableTimeLabel);
+            grid.getChildren().addAll(nameDateTimeLabel, patientFirstNameLabel, patientFirstNameText, patientLastNameLabel,patientLastNameText, selectDayLabel, enterDayText,makeAppointmentButton,availableDateLabel, availableTimeLabel);
             Scene scene = new Scene(grid, 800, 800);
             stage.setScene(scene);
             stage.show();
 
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  /////////////////////////////////////////////////////////////STAGE FOR IF THE LOG IN FAILS/////////////////////////////////////////////////////////////////////////////
         else if(newStage == 3){
             stage.setTitle("Health-Care System");
@@ -287,7 +331,6 @@ public class Main extends Application {
             stage.show();
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////Check in patient use case///////////////////
         else if(newStage == 4){
             stage.setTitle("Health-Care System");
@@ -341,7 +384,8 @@ public class Main extends Application {
 
 
         }
-
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -352,22 +396,24 @@ public class Main extends Application {
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
     public void logInButton(String nameTemp, String IDTemp) throws SQLException {
         System.out.println(nameTemp + " " + IDTemp);
-
+/*
         String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
         String database_username = "system";
         String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
+ */
 
-        /*
+
+
         try {
             changeStage(primaryStage, 1);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-         */
 
+/*
         if((DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp)) == 1){
             try {
                 changeStage(primaryStage, 1);
@@ -384,6 +430,8 @@ public class Main extends Application {
             }
         }
 
+ */
+
 
 
 
@@ -397,7 +445,14 @@ public class Main extends Application {
         String database_username = "system";
         String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
-        int tempName = DatabaseAccess.find_doctor_id(conn,doctorFirstNameTemp,doctorLastNameTemp);
+
+        int tempDoctorID = DatabaseAccess.find_doctor_id(conn,doctorFirstNameTemp,doctorLastNameTemp);
+        doctorID = tempDoctorID;
+
+
+        dates = DatabaseAccess.pull_doctor_schedule_as_str_dates(conn, tempDoctorID);
+        times = DatabaseAccess.pull_doctor_schedule_as_str_times(conn, tempDoctorID);
+
 
 
         try {
@@ -410,7 +465,22 @@ public class Main extends Application {
 
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
-    public void storeAppointment(String nameTemp,String dateTemp,String timeTemp){
+    public void storeAppointment(String firstNameTemp,String lastNameTemp,String dayTemp,String monthTemp,String yearTemp, String hourTemp, String minTemp) throws SQLException {
+        String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
+        String database_username = "system";
+        String database_password = "YellowGreen27";
+        Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
+        ApptSchedule appt_schedule = DatabaseAccess.pull_appt_schedule(conn);
+
+        ///////////////////////////////////////////////////
+        Calendar newCalendar = Calendar.getInstance();
+        newCalendar.set(Integer.parseInt(yearTemp),Integer.parseInt(monthTemp),Integer.parseInt(dayTemp),Integer.parseInt(hourTemp), Integer.parseInt(minTemp));
+        /////////////////////////////////////////////////////
+
+        //int my_patient_id = DatabaseAccess.find_patient_id(conn,firstNameTemp,lastNameTemp);
+        //DatabaseAccess.add_appt_to_schedule(conn,appt_schedule,my_patient_id,doctorID,newCalendar);
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         try {
             changeStage(primaryStage, 1);
         } catch (FileNotFoundException e) {
