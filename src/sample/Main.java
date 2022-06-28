@@ -200,60 +200,62 @@ public class Main extends Application {
             GridPane.setConstraints(nameDateTimeLabel, 10, 2);
             ////////////////////////////////////////////////////////////////////////Display doctor available date and time
             Label availableDateLabel = new Label("Available Dates are: "+ dates);
-            GridPane.setConstraints(availableDateLabel, 1, 3);
+            GridPane.setConstraints(availableDateLabel, 1, 15);
             Label availableTimeLabel = new Label("Available times are: "+ times);
-            GridPane.setConstraints(availableTimeLabel, 1, 4);
+            GridPane.setConstraints(availableTimeLabel, 1, 16);
 //////////////////////////////////////////////////////////////////////////////////////Enter the patients name
             Label patientFirstNameLabel = new Label("Enter Patient First Name:");
-            GridPane.setConstraints(patientFirstNameLabel, 10, 3);
+            GridPane.setConstraints(patientFirstNameLabel, 8, 3);
             TextField patientFirstNameText = new TextField();
             patientFirstNameText.setMinSize(100, 45);
-            GridPane.setConstraints(patientFirstNameText, 10, 4);
+            GridPane.setConstraints(patientFirstNameText, 8, 4);
 
             Label patientLastNameLabel = new Label("Enter Patient Last Name:");
-            GridPane.setConstraints(patientLastNameLabel, 12, 3);
+            GridPane.setConstraints(patientLastNameLabel, 10, 3);
             TextField patientLastNameText = new TextField();
             patientLastNameText.setMinSize(100, 45);
-            GridPane.setConstraints(patientLastNameText, 12, 4);
+            GridPane.setConstraints(patientLastNameText, 10, 4);
 
 //////////////////////////////////////////////////////////////////////////////////////
-            Label selectDayLabel = new Label("Select Day:");
-            GridPane.setConstraints(selectDayLabel, 10, 5);
+            Label selectDayLabel = new Label("Enter Day:");
+            GridPane.setConstraints(selectDayLabel, 8, 5);
             TextField enterDayText = new TextField();
             enterDayText.setMinSize(100, 45);
-            GridPane.setConstraints(enterDayText, 10, 6);
+            GridPane.setConstraints(enterDayText, 8, 6);
             ///////////////////////////////////////////////////////////////
-            Label selectMonthLabel = new Label("Select Month:");
-            GridPane.setConstraints(selectMonthLabel, 12, 5);
+            Label selectMonthLabel = new Label("Enter Month:");
+            GridPane.setConstraints(selectMonthLabel, 10, 5);
+
             TextField enterMonthText = new TextField();
             enterMonthText.setMinSize(100, 45);
-            GridPane.setConstraints(enterMonthText, 12, 6);
+            GridPane.setConstraints(enterMonthText, 10, 6);
 /////////////////////////////////////////////////////////////////////////////
-            Label selectYearLabel = new Label("Select Year:");
-            GridPane.setConstraints(selectYearLabel, 14, 5);
+            Label selectYearLabel = new Label("Enter Year:");
+            GridPane.setConstraints(selectYearLabel, 12, 5);
+
             TextField enterYearText = new TextField();
             enterYearText.setMinSize(100, 45);
-            GridPane.setConstraints(enterYearText, 14, 6);
+            GridPane.setConstraints(enterYearText, 12, 6);
 
 ///////////////////////////////////////////////////////////////////////////////////////Enter the time Hours then min.
 
             Label selectHourLabel = new Label("Select Hour:");
-            GridPane.setConstraints(selectHourLabel, 10, 7);
+            GridPane.setConstraints(selectHourLabel, 8, 7);
             TextField enterHourText = new TextField();
             enterHourText.setMinSize(100, 45);
-            GridPane.setConstraints(enterHourText, 10, 8);
+            GridPane.setConstraints(enterHourText, 8, 8);
 
             Label selectMinLabel = new Label("Select Min:");
-            GridPane.setConstraints(selectMinLabel, 12, 7);
+            GridPane.setConstraints(selectMinLabel, 10, 7);
             TextField enterMinText = new TextField();
             enterMinText.setMinSize(100, 45);
-            GridPane.setConstraints(enterMinText, 12, 8);
+            GridPane.setConstraints(enterMinText, 10, 8);
 
 /////////////////////////////////////////////////////////////////////////////////////////////Button
             Button makeAppointmentButton = new Button("Make Appointment");
             makeAppointmentButton.setStyle("-fx-background-color: MediumSeaGreen");
             makeAppointmentButton.setMinSize(70, 45);
-            GridPane.setConstraints(makeAppointmentButton, 10, 9);
+            GridPane.setConstraints(makeAppointmentButton, 10, 15);
             makeAppointmentButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -274,7 +276,7 @@ public class Main extends Application {
                 }
             });
 ////////////////////////////////////////////////////////////////////////////////////////////
-            grid.getChildren().addAll(nameDateTimeLabel, patientFirstNameLabel, patientFirstNameText, patientLastNameLabel,patientLastNameText, selectDayLabel, enterDayText,makeAppointmentButton,availableDateLabel, availableTimeLabel);
+            grid.getChildren().addAll(nameDateTimeLabel, patientFirstNameLabel, patientFirstNameText, patientLastNameLabel,patientLastNameText, selectDayLabel, enterDayText,selectMonthLabel,enterMonthText,selectYearLabel,enterYearText,selectHourLabel,enterHourText,selectMinLabel,enterMinText,makeAppointmentButton,availableDateLabel, availableTimeLabel);
             Scene scene = new Scene(grid, 800, 800);
             stage.setScene(scene);
             stage.show();
@@ -396,24 +398,20 @@ public class Main extends Application {
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
     public void logInButton(String nameTemp, String IDTemp) throws SQLException {
         System.out.println(nameTemp + " " + IDTemp);
-/*
+
         String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
         String database_username = "system";
         String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
- */
 
 
 
-        try {
-            changeStage(primaryStage, 1);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
 
 
-/*
+
+
+
         if((DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp)) == 1){
             try {
                 changeStage(primaryStage, 1);
@@ -430,7 +428,7 @@ public class Main extends Application {
             }
         }
 
- */
+
 
 
 
@@ -446,12 +444,17 @@ public class Main extends Application {
         String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
+
+
         int tempDoctorID = DatabaseAccess.find_doctor_id(conn,doctorFirstNameTemp,doctorLastNameTemp);
         doctorID = tempDoctorID;
 
 
+
         dates = DatabaseAccess.pull_doctor_schedule_as_str_dates(conn, tempDoctorID);
         times = DatabaseAccess.pull_doctor_schedule_as_str_times(conn, tempDoctorID);
+
+
 
 
 
@@ -466,11 +469,14 @@ public class Main extends Application {
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
     public void storeAppointment(String firstNameTemp,String lastNameTemp,String dayTemp,String monthTemp,String yearTemp, String hourTemp, String minTemp) throws SQLException {
+
         String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
         String database_username = "system";
         String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
         ApptSchedule appt_schedule = DatabaseAccess.pull_appt_schedule(conn);
+
+
 
         ///////////////////////////////////////////////////
         Calendar newCalendar = Calendar.getInstance();
