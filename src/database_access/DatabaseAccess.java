@@ -11,29 +11,31 @@
    January = 0, February = 1, etc.). Take note how I modify the month integer by one unit when converting to
    and from Calendar objects.
 
-   Where to find each method in this file, including function specifications:
-        verify_user_pass()          line   97
-        pull_user_info()            line  129
-        pull_doctor_id_list()       line  169
-        find_doctor_id()            line  218
-        find_doctor_name()          line  245
-        pull_doctor_schedule()      line  279
-        pull_patient_info()         line  330
-        find_patient_id()           line  433
-        update_patient_info()       line  487
-        pull_patient_ssn()          line  532
-        update_patient_ssn()        line  558
-        pull_appt_schedule()        line  581
-        add_appt_to_schedule()      line  641
-        change_no_show_status()     line  666
-        pull_chart_records()        line  692
-        add_new_chart_record()      line  774
-        update_chart_record()       line  852
-        pull_payment_records()      line  918
-        add_new_payment_record()    line  992
-        update_payment_record()     line 1052
-        find_drug_id()              line 1082
-        add_new_prescription()      line 1108
+   Where to find each method in this file (DatabaseAccess.java), including function specifications:
+        verify_user_pass()  . . . . . . . . line   99
+        pull_user_info()  . . . . . . . . . line  131
+        pull_doctor_id_list() . . . . . . . line  171
+        find_doctor_id()  . . . . . . . . . line  220
+        find_doctor_name()  . . . . . . . . line  247
+        pull_doctor_schedule()  . . . . . . line  281
+        pull_patient_info() . . . . . . . . line  332
+        find_patient_id() . . . . . . . . . line  435
+        update_patient_info() . . . . . . . line  489
+        pull_patient_ssn()  . . . . . . . . line  534
+        update_patient_ssn()  . . . . . . . line  560
+        pull_appt_schedule()  . . . . . . . line  583
+        add_appt_to_schedule()  . . . . . . line  643
+        change_no_show_status() . . . . . . line  668
+        pull_chart_records()  . . . . . . . line  694
+        add_new_chart_record()  . . . . . . line  776
+        update_chart_record() . . . . . . . line  854
+        pull_payment_records()  . . . . . . line  920
+        add_new_payment_record()  . . . . . line  994
+        update_payment_record() . . . . . . line 1054
+        find_drug_id()  . . . . . . . . . . line 1084
+        add_new_prescription()  . . . . . . line 1110
+        pull_doctor_schedule_as_str_dates . line 1151
+        pull_doctor_schedule_as_str_times . line 1189
 
    Suggested methods for each use case (note that not all may be necessary depending on the implementation of
    the rest of the code):

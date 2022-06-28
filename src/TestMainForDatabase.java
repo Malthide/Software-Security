@@ -174,11 +174,16 @@ public class TestMainForDatabase {
             }
             System.out.println();
 
-            //Test DatabaseAccess.add_appt_to_schedule() using the AppointmentSchedule object appt_s and the PatientInfo object p_info created above.
+            //Test DatabaseAccess.add_appt_to_schedule()
             System.out.println("Test of DatabaseAccess.add_appt_to_schedule()");
             Calendar calendar3 = Calendar.getInstance();
             calendar3.set(2022, 6, 8, 16, 0);
-            int success_appt = DatabaseAccess.add_appt_to_schedule(conn, appt_s, p_info.id_num, 3852, calendar3);
+            Calendar my_patient_birthdate = Calendar.getInstance();
+            my_patient_birthdate.set(1982, 6, 16);
+            ApptSchedule appt_schedule = DatabaseAccess.pull_appt_schedule(conn);
+            int my_patient_id = DatabaseAccess.find_patient_id(conn, "Jia", "Chen", my_patient_birthdate);
+            int my_doc_id = DatabaseAccess.find_doctor_id(conn, "Amy", "Stephens");
+            int success_appt = DatabaseAccess.add_appt_to_schedule(conn, appt_schedule, my_patient_id, my_doc_id, calendar3);
             if (success_appt == 0)
                 System.out.println("Appointment scheduled successfully.");
             else
