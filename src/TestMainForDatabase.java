@@ -1,7 +1,7 @@
 /* TestMainForDatabase.java
    Created by Christopher Walker.
    Created 14 June 2022.
-   Last modified 27 June 2022.
+   Last modified 28 June 2022.
    THIS FILE SHOULD NOT BE INCLUDED IN THE FINAL PROJECT.
    This program can be run to test the database_access package. It also provides a template for how methods
    in that package should be accessed. Especially note the import statements and how the connection to the
@@ -283,7 +283,6 @@ public class TestMainForDatabase {
             System.out.println();
 
             //Test DatabaseAccess.add_new_payment_record() using a PaymentRecord object
-            //9087562712654, 1094273
             System.out.println("Test of DatabaseAccess.add_new_payment_record()");
             Calendar today2 = Calendar.getInstance();
             PaymentRecord pay_record1 = new PaymentRecord(6250916483948L, 1094273, 55.0, today2, 0, today2, -2); //note that if paid_check is 0, it doesn't matter what values are put in paid_date and payment_type
@@ -332,6 +331,20 @@ public class TestMainForDatabase {
             System.out.println("Test of DatabaseAccess.pull_doctor_schedule_as_str_times()");
             String doc_times = DatabaseAccess.pull_doctor_schedule_as_str_times(conn, 9427);
             System.out.println(doc_times);
+            System.out.println();
+
+            //Test DatabaseAccess.does_patient_have_appt_today
+            System.out.println("Test of DatabaseAccess.does_patient_have_appt_today()");
+            int my_pat_id = DatabaseAccess.find_patient_id_from_name_only(conn, "Jia", "Chen");
+            String appt_time = DatabaseAccess.does_patient_have_appt_today(conn, my_pat_id);
+            System.out.println("Appointment not yet scheduled for today with error code: " + appt_time);
+
+            Calendar today3 = Calendar.getInstance();
+            int my_doctor_id = DatabaseAccess.find_doctor_id(conn, "Jose", "Gonzalez");
+            ApptSchedule appt_s0 = DatabaseAccess.pull_appt_schedule(conn);
+            DatabaseAccess.add_appt_to_schedule(conn, appt_s0, my_pat_id, my_doctor_id, today3); //adding an appointment to schedule for today (using today3, which contains the time and date at which it was created)
+            appt_time = DatabaseAccess.does_patient_have_appt_today(conn, my_pat_id);
+            System.out.println("Appointment now scheduled for today at time: " + appt_time);
 
             conn.close();
         } catch (Exception SQLException) {

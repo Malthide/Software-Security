@@ -1,7 +1,7 @@
 /* DatabaseAccess.java
    Created by Christopher Walker.
    Created 14 June 2022.
-   Last modified 27 June 2022.
+   Last modified 28 June 2022.
    This package provides access functions to a specified SQL database connection. The methods provided here
    are designed for ease of database access and according to the design specifications given in the project
    description.
@@ -12,80 +12,32 @@
    and from Calendar objects.
 
    Where to find each method in this file (DatabaseAccess.java), including function specifications:
-        verify_user_pass()  . . . . . . . . line  100
-        pull_user_info()  . . . . . . . . . line  132
-        pull_doctor_id_list() . . . . . . . line  172
-        find_doctor_id()  . . . . . . . . . line  221
-        find_doctor_name()  . . . . . . . . line  248
-        pull_doctor_schedule()  . . . . . . line  282
-        pull_patient_info() . . . . . . . . line  334
-        find_patient_id() . . . . . . . . . line  436
-        update_patient_info() . . . . . . . line  490
-        pull_patient_ssn()  . . . . . . . . line  535
-        update_patient_ssn()  . . . . . . . line  561
-        pull_appt_schedule()  . . . . . . . line  584
-        add_appt_to_schedule()  . . . . . . line  644
-        change_no_show_status() . . . . . . line  669
-        pull_chart_records()  . . . . . . . line  695
-        add_new_chart_record()  . . . . . . line  777
-        update_chart_record() . . . . . . . line  855
-        pull_payment_records()  . . . . . . line  921
-        add_new_payment_record()  . . . . . line  995
-        update_payment_record() . . . . . . line 1055
-        find_drug_id()  . . . . . . . . . . line 1085
-        add_new_prescription()  . . . . . . line 1111
-        pull_doctor_schedule_as_str_dates . line 1152
-        pull_doctor_schedule_as_str_times . line 1190
-        find_patient_id_from_name_only  . . line 1239
-
-   Suggested methods for each use case (note that not all may be necessary depending on the implementation of
-   the rest of the code):
-        Login:
-            verify_user_pass()
-            pull_user_info() (to find user's ID number and authorization level for access permissions)
-        Make appointment:
-            pull_doctor_id_list()
-            find_doctor_id()
-            find_doctor_name()
-            pull_doctor_schedule()
-            pull_patient_info()
-            pull_appt_schedule()
-            add_appt_to_schedule()
-        Clear no-show appointment:
-            find_patient_id()
-            change_no_show_status()
-        Check-in patient:
-            pull_user_info()
-            find_doctor_name()
-            find_patient_id()
-            pull_patient_info()
-            pull_appt_schedule()
-            pull_patient_ssn()
-            update_patient_info()
-            update_patient_ssn()
-            pull_chart_records()
-            change_no_show_status()
-            add_new_payment_record()
-            add_new_chart_record()
-        Pay medical fee:
-            pull_user_info()
-            find_patient_id()
-            pull_payment_records()
-            update_payment_record()
-        Update vital signs:
-            pull_user_info()
-            pull_chart_records()
-            add_new_chart_record()
-            update_chart_record()
-        Treat patient:
-            pull_user_info()
-            pull_chart_records()
-            update_chart_record()
-            find_drug_id()
-            add_new_prescription()
-
-   Development Update: At this time, all methods have been implemented and tested. Please let me know
-        if you run into any issues or find any bugs that I missed.
+        verify_user_pass()  . . . . . . . . line   52
+        pull_user_info()  . . . . . . . . . line   84
+        pull_doctor_id_list() . . . . . . . line  124
+        find_doctor_id()  . . . . . . . . . line  173
+        find_doctor_name()  . . . . . . . . line  200
+        pull_doctor_schedule()  . . . . . . line  234
+        pull_patient_info() . . . . . . . . line  285
+        find_patient_id() . . . . . . . . . line  388
+        update_patient_info() . . . . . . . line  442
+        pull_patient_ssn()  . . . . . . . . line  487
+        update_patient_ssn()  . . . . . . . line  513
+        pull_appt_schedule()  . . . . . . . line  536
+        add_appt_to_schedule()  . . . . . . line  596
+        change_no_show_status() . . . . . . line  630
+        pull_chart_records()  . . . . . . . line  656
+        add_new_chart_record()  . . . . . . line  738
+        update_chart_record() . . . . . . . line  816
+        pull_payment_records()  . . . . . . line  812
+        add_new_payment_record()  . . . . . line  956
+        update_payment_record() . . . . . . line 1016
+        find_drug_id()  . . . . . . . . . . line 1046
+        add_new_prescription()  . . . . . . line 1072
+        pull_doctor_schedule_as_str_dates() line 1113
+        pull_doctor_schedule_as_str_times() line 1151
+        find_patient_id_from_name_only()  . line 1201
+        does_patient_have_appt_today()  . . line 1235
  */
 
 
@@ -643,8 +595,9 @@ public class DatabaseAccess {
 
     /* add_appt_to_schedule: Takes a database connection conn, an ApptSchedule object appt_s, a patient_id,
             doctor_id, and Calendar object date_time. Inserts this appointment information into the database
-            and adds a new appointment object to the appt_list of appt_s. Returns 0 for successful execution
-            or 2 for an SQL exception.
+            and adds a new appointment object to the appt_list of appt_s. Returns 3 if an appointment is
+            already scheduled for the given doctor at the given time and date. Returns 0 for successful
+            execution or 2 for an SQL exception.
      */
     static public int add_appt_to_schedule(Connection conn, ApptSchedule appt_s, int patient_id, int doctor_id, Calendar date_time) {
         int new_appt_id = appt_s.appt_list_length + 1;
@@ -652,9 +605,17 @@ public class DatabaseAccess {
 
         try {
             Statement stmt = conn.createStatement();
-            String query = "INSERT INTO appointments VALUES (" + new_appt_id + ", " + patient_id + ", " + doctor_id + ", " +
-                date_time.get(Calendar.DATE) + ", " + month + ", " + date_time.get(Calendar.YEAR) + ", " + date_time.get(Calendar.HOUR) + ", " +
-                date_time.get(Calendar.MINUTE) + ", " + "0)";
+            String query = "SELECT id_num FROM appointments WHERE doctor_id = " + doctor_id + " AND appt_day = " +
+                date_time.get(Calendar.DATE) + " AND appt_month = " + month + " AND appt_year = " + date_time.get(Calendar.YEAR) +
+                " AND appt_hour = " + date_time.get(Calendar.HOUR_OF_DAY) + " AND appt_minute = " + date_time.get(Calendar.MINUTE);
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() == true)  //if an appointment with matching date, time, and doctor is found, return 3
+                return 3;
+
+            query = "INSERT INTO appointments VALUES (" + new_appt_id + ", " + patient_id + ", " + doctor_id + ", " +
+                date_time.get(Calendar.DATE) + ", " + month + ", " + date_time.get(Calendar.YEAR) + ", " +
+                date_time.get(Calendar.HOUR_OF_DAY) + ", " +  date_time.get(Calendar.MINUTE) + ", " + "0)";
             stmt.executeQuery(query);
 
             appt_s.add_appointment(new_appt_id, patient_id, doctor_id, date_time, 0);
@@ -1267,6 +1228,39 @@ public class DatabaseAccess {
             return rs.getInt("id_num");
         } catch (Exception SQLException) {
             return -1;
+        }
+    }
+
+
+    /* does_patient_have_appt_today: Takes a database Connection conn and a patient_id. Checks the database
+            to see if an appointment has been scheduled with patient_id for today's date. If at least one
+            appointment has been scheduled for today with the given patient_id, returns a string containing
+            the time of the first appointment for today. If no appointment was found with the given
+            information, returns the string "-3". If an SQLException occurs, returns the string "-1".
+     */
+    static public String does_patient_have_appt_today(Connection conn, int patient_id) {
+        Calendar today = Calendar.getInstance();
+        int month = (today.get(Calendar.MONTH)) + 1;
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "SELECT * FROM appointments WHERE appt_day = " + today.get(Calendar.DATE) + " AND appt_month = " +
+                month + " AND appt_year = " + today.get(Calendar.YEAR) + " AND patient_id = " + patient_id;
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next() != true) //if no appointment for today is found, returns the string "-3"
+                return "-3";
+
+            int appt_hour = rs.getInt("appt_hour");
+            int appt_minute = rs.getInt("appt_minute");
+
+            String appt_hour_str = Integer.toString(appt_hour);
+            String appt_minute_str = Integer.toString(appt_minute);
+            if (appt_minute_str.length() < 2)
+                appt_minute_str = "0" + appt_minute_str;
+
+            return appt_hour_str + ":" + appt_minute_str;
+        } catch (Exception SQLException) {
+            return "-1";
         }
     }
 }
