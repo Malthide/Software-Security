@@ -178,10 +178,8 @@ public class TestMainForDatabase {
             System.out.println("Test of DatabaseAccess.add_appt_to_schedule()");
             Calendar calendar3 = Calendar.getInstance();
             calendar3.set(2022, 6, 8, 16, 0);
-            Calendar my_patient_birthdate = Calendar.getInstance();
-            my_patient_birthdate.set(1982, 6, 16);
             ApptSchedule appt_schedule = DatabaseAccess.pull_appt_schedule(conn);
-            int my_patient_id = DatabaseAccess.find_patient_id(conn, "Jia", "Chen", my_patient_birthdate);
+            int my_patient_id = DatabaseAccess.find_patient_id_from_name_only(conn, "Jia", "Chen");
             int my_doc_id = DatabaseAccess.find_doctor_id(conn, "Amy", "Stephens");
             int success_appt = DatabaseAccess.add_appt_to_schedule(conn, appt_schedule, my_patient_id, my_doc_id, calendar3);
             if (success_appt == 0)

@@ -12,30 +12,31 @@
    and from Calendar objects.
 
    Where to find each method in this file (DatabaseAccess.java), including function specifications:
-        verify_user_pass()  . . . . . . . . line   99
-        pull_user_info()  . . . . . . . . . line  131
-        pull_doctor_id_list() . . . . . . . line  171
-        find_doctor_id()  . . . . . . . . . line  220
-        find_doctor_name()  . . . . . . . . line  247
-        pull_doctor_schedule()  . . . . . . line  281
-        pull_patient_info() . . . . . . . . line  332
-        find_patient_id() . . . . . . . . . line  435
-        update_patient_info() . . . . . . . line  489
-        pull_patient_ssn()  . . . . . . . . line  534
-        update_patient_ssn()  . . . . . . . line  560
-        pull_appt_schedule()  . . . . . . . line  583
-        add_appt_to_schedule()  . . . . . . line  643
-        change_no_show_status() . . . . . . line  668
-        pull_chart_records()  . . . . . . . line  694
-        add_new_chart_record()  . . . . . . line  776
-        update_chart_record() . . . . . . . line  854
-        pull_payment_records()  . . . . . . line  920
-        add_new_payment_record()  . . . . . line  994
-        update_payment_record() . . . . . . line 1054
-        find_drug_id()  . . . . . . . . . . line 1084
-        add_new_prescription()  . . . . . . line 1110
-        pull_doctor_schedule_as_str_dates . line 1151
-        pull_doctor_schedule_as_str_times . line 1189
+        verify_user_pass()  . . . . . . . . line  100
+        pull_user_info()  . . . . . . . . . line  132
+        pull_doctor_id_list() . . . . . . . line  172
+        find_doctor_id()  . . . . . . . . . line  221
+        find_doctor_name()  . . . . . . . . line  248
+        pull_doctor_schedule()  . . . . . . line  282
+        pull_patient_info() . . . . . . . . line  334
+        find_patient_id() . . . . . . . . . line  436
+        update_patient_info() . . . . . . . line  490
+        pull_patient_ssn()  . . . . . . . . line  535
+        update_patient_ssn()  . . . . . . . line  561
+        pull_appt_schedule()  . . . . . . . line  584
+        add_appt_to_schedule()  . . . . . . line  644
+        change_no_show_status() . . . . . . line  669
+        pull_chart_records()  . . . . . . . line  695
+        add_new_chart_record()  . . . . . . line  777
+        update_chart_record() . . . . . . . line  855
+        pull_payment_records()  . . . . . . line  921
+        add_new_payment_record()  . . . . . line  995
+        update_payment_record() . . . . . . line 1055
+        find_drug_id()  . . . . . . . . . . line 1085
+        add_new_prescription()  . . . . . . line 1111
+        pull_doctor_schedule_as_str_dates . line 1152
+        pull_doctor_schedule_as_str_times . line 1190
+        find_patient_id_from_name_only  . . line 1239
 
    Suggested methods for each use case (note that not all may be necessary depending on the implementation of
    the rest of the code):
@@ -432,9 +433,9 @@ public class DatabaseAccess {
     }
 
 
-    /* find_patient_id: Takes a database Connection conn, a first_name, and a last_name. Returns the id_num of
-            the corresponding patient. If no id is found, returns -3. If more than one patient was found with
-            the same name and birthdate, returns -2. If an SQLException occurs, returns -1.
+    /* find_patient_id: Takes a database Connection conn, a first_name, a last_name, and a Calendar birthdate.
+            Returns the id_num of the corresponding patient. If no id is found, returns -3. If more than one
+            patient was found with the same name and birthdate, returns -2. If an SQLException occurs, returns -1.
      */
     static public int find_patient_id(Connection conn, String first_name, String last_name, Calendar birthdate) {
         byte[] enc_f_name = new byte[64];
@@ -1232,6 +1233,40 @@ public class DatabaseAccess {
         } catch (Exception SQLException) {
             System.out.println(SQLException);
             return "An exception occurred.";
+        }
+    }
+
+
+    /* find_patient_id_from_name_only: Takes a database Connection conn, a first_name, and a last_name. Returns the id_num of
+            the corresponding patient. If no id is found, returns -3. If more than one patient was found with
+            the same name, returns -2. If an SQLException occurs, returns -1.
+     */
+    static public int find_patient_id_from_name_only(Connection conn, String first_name, String last_name) {
+        byte[] enc_f_name = new byte[64];
+        byte[] enc_l_name = new byte[64];
+
+        try {
+            enc_f_name = DatabaseSecurity.encrypt(first_name, 64);
+            String efn = DatabaseSecurity.byte_array_to_hex_string(enc_f_name);
+            enc_l_name = DatabaseSecurity.encrypt(last_name, 64);
+            String eln = DatabaseSecurity.byte_array_to_hex_string(enc_l_name);
+
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = stmt.executeQuery("SELECT * FROM patients WHERE first_name = '" + efn + "' AND last_name = '" + eln + "'");
+
+            if (rs.next() != true)
+                return -3;
+
+            rs.last();
+            int num_results = rs.getRow(); //This determines how many rows are in rs
+            rs.first();
+
+            if (num_results > 1)
+                return -2;
+
+            return rs.getInt("id_num");
+        } catch (Exception SQLException) {
+            return -1;
         }
     }
 }
