@@ -103,11 +103,17 @@ public class Main extends Application {
             Label logInLabel = new Label("LOG IN SUCCESSFUL");
             GridPane.setConstraints(logInLabel, 10, 3);
 
-            Label nameLabel = new Label("Enter Doctor's Name:");
+            Label nameLabel = new Label("Enter Doctor's First Name:");
             GridPane.setConstraints(nameLabel, 10, 4);
             TextField doctorNameText = new TextField();
             doctorNameText.setMinSize(100, 45);
-            GridPane.setConstraints(doctorNameText, 15, 5);
+            GridPane.setConstraints(doctorNameText, 10, 5);
+
+            Label nameLabel2 = new Label("Enter Doctor's Last Name:");
+            GridPane.setConstraints(nameLabel2, 12, 4);
+            TextField doctorNameText2 = new TextField();
+            doctorNameText2.setMinSize(100, 45);
+            GridPane.setConstraints(doctorNameText2, 12, 5);
 
 //////////////////////////////////////////////////////////////////////////////Button to enter doctors name
             Button enterDoctorNameButton = new Button("ENTER");
@@ -117,9 +123,13 @@ public class Main extends Application {
             enterDoctorNameButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    String nameTemp = doctorNameText.getText();
-
-                    doctorNameButton(nameTemp);
+                    String firstNameTemp = doctorNameText.getText();
+                    String lastNameTemp = doctorNameText2.getText();
+                    try {
+                        doctorNameButton(firstNameTemp,lastNameTemp);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
 
                 }
             });
@@ -161,7 +171,7 @@ public class Main extends Application {
             });
             //////////////////////////////////////////////////////////////////////////////////
 
-            grid.getChildren().addAll(logInLabel,nameLabel,doctorNameText,enterDoctorNameButton,checkInLabel,checkInButton,logOutButton);
+            grid.getChildren().addAll(logInLabel,nameLabel,doctorNameText,enterDoctorNameButton,checkInLabel,checkInButton,logOutButton,nameLabel2,doctorNameText2);
             Scene scene = new Scene(grid, 700, 700);
             stage.setScene(scene);
             stage.show();
@@ -342,16 +352,21 @@ public class Main extends Application {
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
     public void logInButton(String nameTemp, String IDTemp) throws SQLException {
         System.out.println(nameTemp + " " + IDTemp);
+
         String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
         String database_username = "system";
         String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
+
+        /*
         try {
             changeStage(primaryStage, 1);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+         */
 
         if((DatabaseAccess.verify_user_pass(conn,nameTemp,IDTemp)) == 1){
             try {
@@ -371,14 +386,27 @@ public class Main extends Application {
 
 
 
+
+
     }
 
-    public void doctorNameButton(String doctorNameTemp){//get Doctors available date and time
+    public void doctorNameButton(String doctorFirstNameTemp,String doctorLastNameTemp) throws SQLException {//get Doctors available date and time
+        //Test DatabaseAccess.find_doctor_name()
+
+        String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
+        String database_username = "system";
+        String database_password = "YellowGreen27";
+        Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
+        int tempName = DatabaseAccess.find_doctor_id(conn,doctorFirstNameTemp,doctorLastNameTemp);
+
+
         try {
             changeStage(primaryStage, 2);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+
 
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
