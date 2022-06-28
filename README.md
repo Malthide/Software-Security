@@ -12,11 +12,13 @@ Preliminary Steps:
       
   2. Install a database manager, we have been using Oracle Database 21C 
       https://www.oracle.com/in/database/technologies/xe-downloads.html
-      - When prompted to enter a password, this can be any password, you will use
-      this in step 1 below.
       
       <i>A supplementary guide for setting up Oracle Database Manager</i>
-       https://www.oracle.com/in/database/technologies/appdev/xe/quickstart.html         
+       https://www.oracle.com/in/database/technologies/appdev/xe/quickstart.html
+       
+      - When prompted to enter a password, this can be any password, you will use
+      this in step 1 below.
+   
         
 
 --------------------------------------------------------------------------------
