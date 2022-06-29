@@ -279,7 +279,7 @@ public class Main extends Application {
              Button backbutton1 = new Button("Back");
             backbutton1.setStyle("-fx-background-color: MediumSeaGreen");
             backbutton1.setMinSize(70, 45);
-            GridPane.setConstraints(backbutton1, 10, 10);
+            GridPane.setConstraints(backbutton1, 10, 16);
             backbutton1.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
