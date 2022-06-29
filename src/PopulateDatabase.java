@@ -20,7 +20,7 @@ import java.sql.Statement;
 
 
 public class PopulateDatabase {
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
             String database_username = "system";
@@ -28,17 +28,17 @@ public class PopulateDatabase {
             Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
             Statement stmt = conn.createStatement();
 
-            //stmt.executeQuery("DROP TABLE user_root CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE user_info CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE insurance_providers CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE patients CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE chart_records CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE appointments CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE doctor_schedule CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE payment_types CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE payments CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE drug_types CASCADE CONSTRAINTS");
-            //stmt.executeQuery("DROP TABLE prescriptions CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE user_root CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE user_info CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE insurance_providers CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE patients CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE chart_records CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE appointments CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE doctor_schedule CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE payment_types CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE payments CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE drug_types CASCADE CONSTRAINTS");
+            stmt.executeQuery("DROP TABLE prescriptions CASCADE CONSTRAINTS");
 
             stmt.executeQuery("CREATE TABLE user_root(" +
                     "username VARCHAR2(100 CHAR), " +
@@ -368,5 +368,5 @@ public class PopulateDatabase {
         } catch (Exception SQLException) {
             System.out.println(SQLException);
         }
-    }*/
+    }
 }

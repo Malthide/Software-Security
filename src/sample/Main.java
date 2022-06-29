@@ -429,8 +429,6 @@ public class Main extends Application {
 
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
     public void logInButton(String nameTemp, String IDTemp) throws SQLException {
-        System.out.println(nameTemp + " " + IDTemp);
-
         String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
         String database_username = "system";
         String database_password = "YellowGreen27";
@@ -512,7 +510,7 @@ public class Main extends Application {
 
         ///////////////////////////////////////////////////
         Calendar newCalendar = Calendar.getInstance();
-        newCalendar.set(Integer.parseInt(yearTemp),Integer.parseInt(monthTemp),Integer.parseInt(dayTemp),Integer.parseInt(hourTemp), Integer.parseInt(minTemp));
+        newCalendar.set(Integer.parseInt(yearTemp),(Integer.parseInt(monthTemp) - 1),Integer.parseInt(dayTemp),Integer.parseInt(hourTemp), Integer.parseInt(minTemp));
         /////////////////////////////////////////////////////
 
         int my_patient_id = DatabaseAccess.find_patient_id_from_name_only(conn,firstNameTemp,lastNameTemp);
