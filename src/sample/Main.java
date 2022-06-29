@@ -275,8 +275,24 @@ public class Main extends Application {
 
                 }
             });
+            
+             Button backbutton1 = new Button("Back");
+            backbutton1.setStyle("-fx-background-color: MediumSeaGreen");
+            backbutton1.setMinSize(70, 45);
+            GridPane.setConstraints(backbutton1, 10, 10);
+            backbutton1.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        changeStage(primaryStage, 1);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
 ////////////////////////////////////////////////////////////////////////////////////////////
-            grid.getChildren().addAll(nameDateTimeLabel, patientFirstNameLabel, patientFirstNameText, patientLastNameLabel,patientLastNameText, selectDayLabel, enterDayText,selectMonthLabel,enterMonthText,selectYearLabel,enterYearText,selectHourLabel,enterHourText,selectMinLabel,enterMinText,makeAppointmentButton,availableDateLabel, availableTimeLabel);
+            grid.getChildren().addAll(nameDateTimeLabel, patientFirstNameLabel, patientFirstNameText, patientLastNameLabel,patientLastNameText, selectDayLabel, enterDayText,selectMonthLabel,enterMonthText,selectYearLabel,enterYearText,selectHourLabel,enterHourText,selectMinLabel,enterMinText,makeAppointmentButton,availableDateLabel, availableTimeLabel, backbutton1);
             Scene scene = new Scene(grid, 800, 800);
             stage.setScene(scene);
             stage.show();
@@ -368,7 +384,23 @@ public class Main extends Application {
 
                 }
             });
-            grid.getChildren().addAll(patientNameLabel,patientNameText,patientDOBLabel,patientDOBText,getPatientInfoButton);
+            
+            Button backbutton1 = new Button("Back");
+            backbutton1.setStyle("-fx-background-color: MediumSeaGreen");
+            backbutton1.setMinSize(60, 45);
+            GridPane.setConstraints(backbutton1, 10, 8);
+            backbutton1.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    try {
+                        changeStage(primaryStage, 1);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            grid.getChildren().addAll(patientNameLabel,patientNameText,patientDOBLabel,patientDOBText,getPatientInfoButton,backbutton1);
             Scene scene = new Scene(grid, 700, 700);
             stage.setScene(scene);
             stage.show();
