@@ -1,9 +1,8 @@
 # Software-Security
 
 This is the final project for TTU CS 4331, Software Security Class, Group 6. 
-I get that it was a little <i>sus</i> that we were asking to just make a video,
-but in all honesty our project just has a lot of dependencies that take time to set up. 
-I've made this as detailed as possible. Good luck. 🍀
+Our project has a lot of dependencies that take time to set up, so we want to ensure that you understand how to do so. 
+We've attempted to make this as detailed as possible.
 
 Language: Java
 Recommended IDE: Intelij IDEA 
@@ -29,7 +28,7 @@ Preliminary Steps:
       
       https://www.youtube.com/watch?v=Ope4icw6bVk&ab_channel=BroCode
       
-  2. Install a database manager, we have been using Oracle Database 21C 
+  2. Install a database manager, we have been using Oracle Database 21c or 11g
       https://www.oracle.com/in/database/technologies/xe-downloads.html
       
       Make sure to run the oracle database manager setup.exe as an administrator on Windows.
@@ -59,21 +58,19 @@ Preliminary Steps:
 --------------------------------------------------------------------------------
 Steps to Run
   1. In the SRC --> "PopulateDatabase.java" file, enter your database password as the variable 
-      for database_password. 
+      for database_password (line 24). If you are using a database manager other than Oracle, change the variable database_address accordingly (line 22).
       
       EXAMPLE:
         String database_password = "your_password";
         
         
-  2. In SRC --> sample --> Main.java, change all instances of database_password to your password 
-     there are instances on lines: 
-     361, 401
+  2. In SRC --> sample --> Main.java, change the variables database_password and database_address in the same was as in step 1 (lines 33-35).
       
   3. Run PopulateDatabase.java 
   
   4. Run the Main.java class
        A GUI should pop up asking for a login
-     1. Names for Staff, Doctors, and Nurses currently in the database can be seen in the PopulateDatabase.java file
+     1. Names for Staff, Doctors, and Nurses currently in the database can be seen in the PopulateDatabase.java file.
      
      To test the login, choose a name from the database, or enter an incorrect user name or password for error testing. 
      
@@ -103,7 +100,7 @@ Steps to Run
       
        Day: 7
       
-       Month: 5
+       Month: 7
       
        Year: 2022
       

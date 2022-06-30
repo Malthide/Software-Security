@@ -30,6 +30,9 @@ class tempVars{
 
 }
 public class Main extends Application {
+    String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
+    String database_username = "system";
+    String database_password = "YellowGreen27";
     String times;
     String dates;
     int doctorID;
@@ -429,9 +432,6 @@ public class Main extends Application {
 
     ///////////////////////////////////////////////////////////////FUNCTION FOR LOGGING IN
     public void logInButton(String nameTemp, String IDTemp) throws SQLException {
-        String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
-        String database_username = "system";
-        String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
 
@@ -467,11 +467,6 @@ public class Main extends Application {
     }
 
     public void doctorNameButton(String doctorFirstNameTemp,String doctorLastNameTemp) throws SQLException {//get Doctors available date and time
-        //Test DatabaseAccess.find_doctor_name()
-
-        String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
-        String database_username = "system";
-        String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
 
 
@@ -499,10 +494,6 @@ public class Main extends Application {
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////STORE APPOINTMENT INTO THE DATABASE
     public void storeAppointment(String firstNameTemp,String lastNameTemp,String dayTemp,String monthTemp,String yearTemp, String hourTemp, String minTemp) throws SQLException {
-
-        String database_address = "jdbc:oracle:thin:@localhost:1521:xe";
-        String database_username = "system";
-        String database_password = "YellowGreen27";
         Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
         ApptSchedule appt_schedule = DatabaseAccess.pull_appt_schedule(conn);
 

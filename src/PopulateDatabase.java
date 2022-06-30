@@ -2,14 +2,11 @@
    Created by Christopher Walker.
    Created 15 June 2022.
    Last modified 26 June 2022.
-   THIS FILE SHOULD ONLY BE INCLUDED AS COMMENTED-OUT CODE IN THE FINAL PROJECT AND SHOULD ONLY BE RUN IF
-   NEEDED TO SET UP OR RESET THE DATABASE.
-   This file should only be run once. This program creates a table in the SQL database for usernames and
-   passwords. It then puts initial hash values of passwords, along with their corresponding usernames, into
-   that table. The code has been commented out in order to prevent runtime errors. To run this program,
-   remove the comment markers surrounding main().
-   If you need to run this file again, remove the comment markers surrounding the "DROP TABLE" queries. This
-   will delete the existing tables so that the tables can be recreated with the rest of the code.
+   THIS FILE SHOULD ONLY BE RUN IF NEEDED TO SET UP OR RESET THE DATABASE.
+   This file should only be run once. This program creates tables in the SQL database and populates those
+   tables with initial values.
+   If you need to run this file again, remove the comment markers surrounding the "DROP TABLE" queries (lines
+   28-40). This will delete the existing tables so that the tables can be recreated with the rest of the code.
  */
 
 
@@ -28,6 +25,7 @@ public class PopulateDatabase {
             Connection conn = DriverManager.getConnection(database_address, database_username, database_password);
             Statement stmt = conn.createStatement();
 
+            /*
             stmt.executeQuery("DROP TABLE user_root CASCADE CONSTRAINTS");
             stmt.executeQuery("DROP TABLE user_info CASCADE CONSTRAINTS");
             stmt.executeQuery("DROP TABLE insurance_providers CASCADE CONSTRAINTS");
@@ -39,6 +37,7 @@ public class PopulateDatabase {
             stmt.executeQuery("DROP TABLE payments CASCADE CONSTRAINTS");
             stmt.executeQuery("DROP TABLE drug_types CASCADE CONSTRAINTS");
             stmt.executeQuery("DROP TABLE prescriptions CASCADE CONSTRAINTS");
+             */
 
             stmt.executeQuery("CREATE TABLE user_root(" +
                     "username VARCHAR2(100 CHAR), " +
